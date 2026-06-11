@@ -1,7 +1,7 @@
 <table>
   <tr>
     <td width="" align="center">
-      <img src="./assets/icon/icon.svg" width="120">
+      <img src="./data/ui/assets/icon.svg" width="120">
     </td>
     <td>
       <h1>Nausort Media v2.0</h1>
@@ -135,7 +135,7 @@ Useful for:
 
 ## 🖼️ Preview
 
-<img src="./assets/design/preview apps/preview1.png" width="">
+<img src="./data/design/preview apps/preview1.png" width="">
 
 ---
 
