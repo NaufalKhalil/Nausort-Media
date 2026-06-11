@@ -1,9 +1,6 @@
 """
-Photo Sorting Application v2
-Perbaikan UX: wrap layout, auto-width button, rounded corners,
-dark dialogs, drag/pan, zoom reset antar foto, progress sederhana.
+Nausort Media Prototype v0.4
 """
-
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os, shutil, json, threading, time
@@ -212,65 +209,274 @@ class AskStringDialog(DarkDialog):
         self.destroy()
 
 
-class ColorPickerDialog(DarkDialog):
-    """Simple HSV color picker, dark themed."""
+class ColorPickerDialog(tk.Toplevel):
+    """Advanced color picker with palettes, RGB sliders, brightness, and hex input."""
 
-    SWATCHES = [
-        "#2c2c2e","#3a3a3c","#1c1c4e","#0a3d62","#006266","#1b4332",
-        "#7f1d1d","#78350f","#4c1d95","#831843","#0a84ff","#30d158",
-        "#ffd60a","#ff9f0a","#ff453a","#bf5af2",
-    ]
+    PALETTES = {
+        "Dark": [
+            "#1c1c1e","#2c2c2e","#3a3a3c","#48484a","#636366",
+            "#1c1c4e","#0a3d62","#0b5563","#1b4332","#3b1f2b",
+            "#7f1d1d","#78350f","#4c1d95","#831843","#064e3b",
+        ],
+        "Vibrant": [
+            "#0a84ff","#30d158","#ffd60a","#ff9f0a","#ff453a",
+            "#bf5af2","#64d2ff","#ff375f","#ac8e68","#32ade6",
+            "#ff6961","#ffb347","#87ceeb","#98fb98","#dda0dd",
+        ],
+        "Pastel": [
+            "#ffd1dc","#ffb3c6","#c9b1ff","#b5d5ff","#b5ffd9",
+            "#fffacd","#ffd9b5","#e8b5ff","#b5e8ff","#d4f5b5",
+            "#f7c5b5","#b5c5f7","#f7f5b5","#c5f7b5","#f7b5d8",
+        ],
+        "Neon": [
+            "#ff00ff","#00ffff","#00ff00","#ff0080","#8000ff",
+            "#ff8000","#0080ff","#ffff00","#00ff80","#ff0040",
+            "#40ff00","#0040ff","#ff4000","#00ff40","#4000ff",
+        ],
+    }
 
     def __init__(self, parent, initial="#2c2c2e"):
+        super().__init__(parent)
+        self.result   = None
         self._initial = initial
         self._picked  = initial
-        super().__init__(parent, "Pilih Warna", 360, 230)
+        self._updating = False
+
+        self.title("Pilih Warna")
+        self.configure(bg=BG2)
+        self.resizable(False, False)
+        self.transient(parent)
+        self.grab_set()
+
+        W, H = 480, 540
+        px = parent.winfo_rootx() + parent.winfo_width()  // 2 - W // 2
+        py = parent.winfo_rooty() + parent.winfo_height() // 2 - H // 2
+        self.geometry(f"{W}x{H}+{px}+{py}")
+
+        self._build()
+        self._hex_to_sliders(initial)
+        self.wait_window()
 
     def _build(self):
-        tk.Label(self, text="Pilih warna tombol kategori", bg=BG2, fg=TEXT_DIM,
-                 font=("Segoe UI", 10)).pack(padx=20, pady=(14, 8), anchor="w")
+        # ── Header ──
+        tk.Label(self, text="Pilih Warna Tombol", bg=BG2, fg=TEXT,
+                 font=("Segoe UI", 11, "bold")).pack(padx=20, pady=(14, 0), anchor="w")
 
-        grid = tk.Frame(self, bg=BG2)
-        grid.pack(padx=20)
-        for i, color in enumerate(self.SWATCHES):
-            c = tk.Canvas(grid, width=30, height=30, bg=color,
-                          highlightthickness=2,
-                          highlightbackground=BORDER if color != self._picked else ACCENT,
+        # ── Palette selector ──
+        pal_row = tk.Frame(self, bg=BG2)
+        pal_row.pack(fill=tk.X, padx=20, pady=(8, 0))
+        tk.Label(pal_row, text="Palet:", bg=BG2, fg=TEXT_DIM,
+                 font=("Segoe UI", 9)).pack(side=tk.LEFT, padx=(0, 6))
+
+        self._active_palette = tk.StringVar(value="Dark")
+        for name in self.PALETTES:
+            rb = tk.Radiobutton(pal_row, text=name, variable=self._active_palette,
+                                value=name, bg=BG2, fg=TEXT, selectcolor=BG3,
+                                activebackground=BG2, activeforeground=TEXT,
+                                font=("Segoe UI", 9), cursor="hand2",
+                                command=self._refresh_swatches)
+            rb.pack(side=tk.LEFT, padx=4)
+
+        # ── Swatches grid ──
+        self._swatch_frame = tk.Frame(self, bg=BG2)
+        self._swatch_frame.pack(padx=20, pady=(6, 0), fill=tk.X)
+        self._swatch_canvases = []
+        for _ in range(15):
+            c = tk.Canvas(self._swatch_frame, width=24, height=24,
+                          highlightthickness=2, highlightbackground=BORDER,
                           cursor="hand2")
-            c.grid(row=i // 8, column=i % 8, padx=3, pady=3)
-            c.bind("<Button-1>", lambda e, col=color, cv=c: self._select(col, cv))
+            self._swatch_canvases.append(c)
+        self._refresh_swatches()
 
-        self._preview_frame = tk.Frame(self, bg=self._picked,
-                                       width=40, height=20,
-                                       highlightthickness=1,
-                                       highlightbackground=BORDER)
-        self._preview_frame.pack(pady=(8, 0))
+        # ── Preview bar ──
+        prev_row = tk.Frame(self, bg=BG2)
+        prev_row.pack(fill=tk.X, padx=20, pady=(10, 0))
+        tk.Label(prev_row, text="Preview:", bg=BG2, fg=TEXT_DIM,
+                 font=("Segoe UI", 9)).pack(side=tk.LEFT, padx=(0, 8))
+        self._preview = tk.Frame(prev_row, bg=self._picked,
+                                 width=120, height=28,
+                                 highlightthickness=1, highlightbackground=BORDER)
+        self._preview.pack(side=tk.LEFT)
+        self._preview.pack_propagate(False)
+        self._preview_lbl = tk.Label(self._preview, text="Aa", bg=self._picked,
+                                     fg=TEXT, font=("Segoe UI", 10, "bold"))
+        self._preview_lbl.pack(expand=True)
 
-        row = tk.Frame(self, bg=BG2)
-        row.pack(fill=tk.X, padx=20, pady=10)
+        # ── Hex input ──
+        hex_row = tk.Frame(self, bg=BG2)
+        hex_row.pack(fill=tk.X, padx=20, pady=(8, 0))
+        tk.Label(hex_row, text="HEX:", bg=BG2, fg=TEXT_DIM,
+                 font=("Segoe UI", 9, "bold")).pack(side=tk.LEFT, padx=(0, 6))
         self._hex_var = tk.StringVar(value=self._picked)
-        e = tk.Entry(row, textvariable=self._hex_var, width=10,
-                     bg=BG3, fg=TEXT, insertbackground=TEXT,
-                     relief=tk.FLAT, font=("Consolas", 10),
-                     highlightthickness=1, highlightbackground=BORDER,
-                     highlightcolor=ACCENT)
-        e.pack(side=tk.LEFT, ipady=5, padx=(0, 8))
-        e.bind("<Return>", lambda ev: self._select(self._hex_var.get()))
-        self._btn(row, "Batal",  self.destroy).pack(side=tk.RIGHT, padx=(6, 0))
-        self._btn(row, "Pakai",  self._ok, accent=True).pack(side=tk.RIGHT)
+        hex_entry = tk.Entry(hex_row, textvariable=self._hex_var, width=10,
+                             bg=BG3, fg=TEXT, insertbackground=TEXT,
+                             relief=tk.FLAT, font=("Consolas", 10),
+                             highlightthickness=1, highlightbackground=BORDER,
+                             highlightcolor=ACCENT)
+        hex_entry.pack(side=tk.LEFT, ipady=5)
+        hex_entry.bind("<Return>",    lambda e: self._from_hex())
+        hex_entry.bind("<FocusOut>",  lambda e: self._from_hex())
 
-    def _select(self, color, canvas_ref=None):
+        # ── RGB + Brightness sliders ──
+        sliders_frame = tk.Frame(self, bg=BG2)
+        sliders_frame.pack(fill=tk.X, padx=20, pady=(10, 0))
+
+        self._r_var = tk.IntVar()
+        self._g_var = tk.IntVar()
+        self._b_var = tk.IntVar()
+        self._bright_var = tk.DoubleVar(value=1.0)
+
+        slider_cfg = [
+            ("R", self._r_var,      "#ff453a", 0, 255, self._from_rgb),
+            ("G", self._g_var,      "#30d158", 0, 255, self._from_rgb),
+            ("B", self._b_var,      "#0a84ff", 0, 255, self._from_rgb),
+        ]
+        for label, var, color, lo, hi, cmd in slider_cfg:
+            row = tk.Frame(sliders_frame, bg=BG2)
+            row.pack(fill=tk.X, pady=2)
+            tk.Label(row, text=label, bg=BG2, fg=color,
+                     font=("Segoe UI", 9, "bold"), width=2).pack(side=tk.LEFT)
+            sl = tk.Scale(row, from_=lo, to=hi, orient=tk.HORIZONTAL,
+                          variable=var, command=lambda v, c=cmd: c(),
+                          bg=BG2, fg=TEXT, troughcolor=BG3,
+                          highlightthickness=0, sliderrelief=tk.FLAT,
+                          activebackground=ACCENT, showvalue=False, length=300)
+            sl.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(4, 4))
+            val_lbl = tk.Label(row, textvariable=var, bg=BG2, fg=TEXT_DIM,
+                               font=("Consolas", 9), width=4)
+            val_lbl.pack(side=tk.LEFT)
+
+        # Brightness
+        bright_row = tk.Frame(sliders_frame, bg=BG2)
+        bright_row.pack(fill=tk.X, pady=(6, 2))
+        tk.Label(bright_row, text="☀", bg=BG2, fg=WARN,
+                 font=("Segoe UI", 9), width=2).pack(side=tk.LEFT)
+        self._bright_scale = tk.Scale(bright_row, from_=0, to=200,
+                                      orient=tk.HORIZONTAL,
+                                      variable=tk.DoubleVar(),
+                                      command=self._from_brightness,
+                                      bg=BG2, fg=TEXT, troughcolor=BG3,
+                                      highlightthickness=0, sliderrelief=tk.FLAT,
+                                      activebackground=WARN, showvalue=False, length=300)
+        self._bright_scale.set(100)
+        self._bright_scale.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(4, 4))
+        self._bright_pct_var = tk.StringVar(value="100%")
+        tk.Label(bright_row, textvariable=self._bright_pct_var, bg=BG2, fg=TEXT_DIM,
+                 font=("Consolas", 9), width=4).pack(side=tk.LEFT)
+
+        # ── Buttons ──
+        btn_row = tk.Frame(self, bg=BG2)
+        btn_row.pack(fill=tk.X, padx=20, pady=(14, 16))
+        self._btn(btn_row, "Batal",  self.destroy).pack(side=tk.RIGHT, padx=(6, 0))
+        self._btn(btn_row, "Pakai",  self._ok, accent=True).pack(side=tk.RIGHT)
+
+    def _btn(self, parent, text, command, accent=False):
+        bg = ACCENT if accent else BG3
+        hv = "#1a8fff" if accent else BG4
+        return RoundedButton(parent, text=text, command=command,
+                             bg=bg, fg=TEXT, hover_bg=hv,
+                             font=("Segoe UI", 10), radius=7,
+                             padx=18, pady=7)
+
+    def _refresh_swatches(self):
+        palette_name = self._active_palette.get()
+        colors = self.PALETTES[palette_name]
+        for i, c in enumerate(self._swatch_canvases):
+            color = colors[i] if i < len(colors) else BG2
+            c.configure(bg=color,
+                        highlightbackground=ACCENT if color == self._picked else BORDER)
+            c.grid(row=i // 8, column=i % 8, padx=2, pady=2,
+                   in_=self._swatch_frame)
+            c.bind("<Button-1>", lambda e, col=color: self._select_color(col))
+
+    def _select_color(self, color):
         try:
-            # Validate
             self.winfo_rgb(color)
             self._picked = color
-            self._preview_frame.configure(bg=color)
             self._hex_var.set(color)
+            self._update_preview(color)
+            self._hex_to_sliders(color)
+            self._bright_scale.set(100)
+            self._refresh_swatches()
         except Exception:
             pass
 
+    def _update_preview(self, color):
+        self._preview.configure(bg=color)
+        self._preview_lbl.configure(bg=color)
+
+    def _from_hex(self):
+        val = self._hex_var.get().strip()
+        if not val.startswith("#"):
+            val = "#" + val
+        try:
+            self.winfo_rgb(val)
+            self._select_color(val)
+        except Exception:
+            pass
+
+    def _rgb_to_hex(self, r, g, b):
+        r = max(0, min(255, int(r)))
+        g = max(0, min(255, int(g)))
+        b = max(0, min(255, int(b)))
+        return f"#{r:02x}{g:02x}{b:02x}"
+
+    def _hex_to_rgb(self, hex_color):
+        hex_color = hex_color.lstrip("#")
+        if len(hex_color) == 3:
+            hex_color = "".join(c*2 for c in hex_color)
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        return r, g, b
+
+    def _hex_to_sliders(self, hex_color):
+        try:
+            r, g, b = self._hex_to_rgb(hex_color)
+            self._updating = True
+            self._r_var.set(r)
+            self._g_var.set(g)
+            self._b_var.set(b)
+            self._updating = False
+        except Exception:
+            self._updating = False
+
+    def _from_rgb(self):
+        if self._updating:
+            return
+        r = self._r_var.get()
+        g = self._g_var.get()
+        b = self._b_var.get()
+        color = self._rgb_to_hex(r, g, b)
+        self._picked = color
+        self._hex_var.set(color)
+        self._update_preview(color)
+        self._bright_scale.set(100)
+        self._refresh_swatches()
+
+    def _from_brightness(self, val):
+        if self._updating:
+            return
+        try:
+            pct = float(val) / 100.0
+            self._bright_pct_var.set(f"{int(float(val))}%")
+            r, g, b = self._hex_to_rgb(self._picked)
+            r2 = min(255, int(r * pct))
+            g2 = min(255, int(g * pct))
+            b2 = min(255, int(b * pct))
+            color = self._rgb_to_hex(r2, g2, b2)
+            self._hex_var.set(color)
+            self._update_preview(color)
+            self._updating = True
+            self._r_var.set(r2)
+            self._g_var.set(g2)
+            self._b_var.set(b2)
+            self._updating = False
+        except Exception:
+            self._updating = False
+
     def _ok(self):
-        self.result = self._picked
+        self.result = self._hex_var.get()
         self.destroy()
 
 
@@ -413,13 +619,17 @@ class PhotoSorterApp:
     # BUILD UI
     # ──────────────────────────────────────────
     def _build_ui(self):
-        # ── Two-column layout ──
-        self.left_col  = tk.Frame(self.root, bg=BG)
-        self.right_col = tk.Frame(self.root, bg=BG, width=290)
-        self.right_col.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 12), pady=12)
-        self.right_col.pack_propagate(False)
-        self.left_col.pack(side=tk.LEFT, fill=tk.BOTH, expand=True,
-                           padx=(12, 8), pady=12)
+        # ── Horizontal PanedWindow for draggable divider ──
+        self.paned = tk.PanedWindow(self.root, orient=tk.HORIZONTAL,
+                                    bg=BG, sashwidth=6, sashrelief=tk.FLAT,
+                                    handlesize=0, bd=0)
+        self.paned.pack(fill=tk.BOTH, expand=True, padx=12, pady=12)
+
+        self.left_col  = tk.Frame(self.paned, bg=BG)
+        self.right_col = tk.Frame(self.paned, bg=BG, width=290)
+        self.paned.add(self.left_col,  minsize=400, stretch="always")
+        self.paned.add(self.right_col, minsize=220, stretch="never")
+        self.paned.paneconfigure(self.right_col, width=290)
 
         # ── LEFT: View label ──
         self._section_label(self.left_col, "View")
@@ -462,10 +672,24 @@ class PhotoSorterApp:
         # Inner canvas for scrollable wrap area
         self.cat_scroll_canvas = tk.Canvas(cat_container, bg=BG,
                                            highlightthickness=0)
-        self.cat_vscroll = tk.Scrollbar(cat_container, orient=tk.VERTICAL,
-                                        command=self.cat_scroll_canvas.yview)
-        self.cat_scroll_canvas.configure(yscrollcommand=self.cat_vscroll.set)
-        self.cat_vscroll.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Dark elegant custom scrollbar (Google dark mode style)
+        style_frame = tk.Frame(cat_container, bg="#1a1a1c", width=8)
+        style_frame.pack(side=tk.RIGHT, fill=tk.Y)
+        style_frame.pack_propagate(False)
+
+        self._sb_track = tk.Canvas(style_frame, bg="#1a1a1c",
+                                   width=8, highlightthickness=0)
+        self._sb_track.pack(fill=tk.BOTH, expand=True)
+        self._sb_thumb = self._sb_track.create_rectangle(
+            2, 0, 6, 40, fill="#3a3a3c", outline="", tags="thumb")
+        self._sb_track.bind("<ButtonPress-1>",   self._sb_click)
+        self._sb_track.bind("<B1-Motion>",       self._sb_drag)
+        self._sb_track.bind("<Enter>",           self._sb_hover_on)
+        self._sb_track.bind("<Leave>",           self._sb_hover_off)
+        self._sb_drag_start = None
+
+        self.cat_scroll_canvas.configure(yscrollcommand=self._custom_sb_set)
         self.cat_scroll_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.cat_wrap = WrapFrame(self.cat_scroll_canvas, bg=BG)
@@ -474,6 +698,8 @@ class PhotoSorterApp:
 
         self.cat_wrap.bind("<Configure>", self._on_wrap_configure)
         self.cat_scroll_canvas.bind("<Configure>", self._on_scroll_canvas_resize)
+        self.cat_scroll_canvas.bind("<MouseWheel>", self._on_cat_scroll)
+        self.cat_wrap.bind("<MouseWheel>",          self._on_cat_scroll)
 
         # ── RIGHT: Terminal ──
         self._section_label(self.right_col, "Terminal")
@@ -512,8 +738,52 @@ class PhotoSorterApp:
 
         self._make_full_btn(
             self.right_col, "Import Folder", self._import_folder,
-            bg=ACCENT, hover_bg="#1a8fff",
+            bg=BG2, hover_bg=BG3,
             font=("Segoe UI", 10, "bold")).pack(fill=tk.X, pady=(6, 0))
+
+    # ──────────────────────────────────────────
+    # CUSTOM DARK SCROLLBAR
+    # ──────────────────────────────────────────
+    def _custom_sb_set(self, first, last):
+        """Called by canvas yscrollcommand — update custom thumb position."""
+        try:
+            first, last = float(first), float(last)
+            h = self._sb_track.winfo_height()
+            if h < 10:
+                return
+            thumb_h  = max(20, int((last - first) * h))
+            thumb_y0 = int(first * h)
+            thumb_y1 = thumb_y0 + thumb_h
+            self._sb_track.coords(self._sb_thumb, 2, thumb_y0, 6, thumb_y1)
+            # Hide thumb if no scrolling needed
+            color = "#3a3a3c" if (last - first) < 1.0 else "#1a1a1c"
+            self._sb_track.itemconfigure(self._sb_thumb, fill=color)
+            self._sb_first = first
+            self._sb_last  = last
+        except Exception:
+            pass
+
+    def _sb_click(self, event):
+        self._sb_drag_start = event.y
+        coords = self._sb_track.coords(self._sb_thumb)
+        if coords:
+            self._sb_thumb_start = coords[1]
+
+    def _sb_drag(self, event):
+        if self._sb_drag_start is None:
+            return
+        h = self._sb_track.winfo_height()
+        if h < 1:
+            return
+        delta = (event.y - self._sb_drag_start) / h
+        self.cat_scroll_canvas.yview_moveto(
+            max(0.0, getattr(self, "_sb_first", 0) + delta))
+
+    def _sb_hover_on(self, event):
+        self._sb_track.itemconfigure(self._sb_thumb, fill="#5a5a5e")
+
+    def _sb_hover_off(self, event):
+        self._sb_track.itemconfigure(self._sb_thumb, fill="#3a3a3c")
 
     def _section_label(self, parent, text, pady=(0, 0)):
         tk.Label(parent, text=text, bg=BG, fg=TEXT_DIM,
@@ -544,6 +814,9 @@ class PhotoSorterApp:
         w = self.cat_scroll_canvas.winfo_width()
         self.cat_scroll_canvas.itemconfigure(self.cat_wrap_window, width=w)
         self.cat_wrap._relayout()
+
+    def _on_cat_scroll(self, event):
+        self.cat_scroll_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     # ──────────────────────────────────────────
     # APPLY CONFIG
@@ -609,13 +882,14 @@ class PhotoSorterApp:
     # CONTEXT MENU
     # ──────────────────────────────────────────
     def _context_menu(self, event, w):
-        # Show current folder as disabled label if set
+        # Show current folder as clickable label if set
         folder_info = w.get("folder", "")
         menu = DarkMenu(self.root)
         if folder_info:
             short = os.path.basename(folder_info) or folder_info
             if len(short) > 28: short = short[:27] + "…"
-            menu.add_command(label=f"📁  {short}", state="disabled")
+            menu.add_command(label=f"📁  {short} ↗",
+                             command=lambda: self._open_folder_in_explorer(folder_info))
             menu.add_separator()
         menu.add_command(label="Set Folder Tujuan",  command=lambda: self._choose_folder(w))
         menu.add_separator()
@@ -625,6 +899,19 @@ class PhotoSorterApp:
         menu.add_separator()
         menu.add_command(label="Delete Category",    command=lambda: self._delete_cat(w))
         menu.tk_popup(event.x_root, event.y_root)
+
+    def _open_folder_in_explorer(self, folder):
+        """Open folder in the system file explorer."""
+        import subprocess, sys, platform
+        try:
+            if platform.system() == "Windows":
+                os.startfile(folder)
+            elif platform.system() == "Darwin":
+                subprocess.Popen(["open", folder])
+            else:
+                subprocess.Popen(["xdg-open", folder])
+        except Exception as e:
+            self.log(f"[WARN] Gagal buka folder: {e}", tag="warn")
 
     def _rename(self, w):
         d = AskStringDialog(self.root, "Rename", "Nama kategori baru:", w["name"])

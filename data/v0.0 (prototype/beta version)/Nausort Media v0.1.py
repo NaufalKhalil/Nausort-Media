@@ -1,6 +1,13 @@
 """
-Photo Sorting Application
-Aplikasi sortir foto menggunakan tkinter
+Nausort Media Prototype v0.1
+
+=> Features:
+- Manage and categorize image files.
+- Load source folder containing images.
+- View thumbnails and preview images.
+- Categorize or move images to destination folder based on specified categories.
+- Provide category configuration and support for common image formats.
+- Provide a simple interface for navigation and color/shortcut category settings.
 """
 
 import tkinter as tk
@@ -15,13 +22,13 @@ import time
 # ─────────────────────────────────────────────
 # CONFIG
 # ─────────────────────────────────────────────
-CONFIG_FILE = "photo_sorter_config.json"
+CONFIG_FILE = "Nausort_Media_config.json"
 SUPPORTED_FORMATS = (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif")
 
 DEFAULT_CONFIG = {
     "categories": [
-        {"name": "Kenangan 1", "folder": "", "color": "#2d2d2d", "shortcut": "1"},
-        {"name": "Kenangan 2", "folder": "", "color": "#2d2d2d", "shortcut": "2"},
+        {"name": "Memory 1", "folder": "", "color": "#2d2d2d", "shortcut": "1"},
+        {"name": "Memory 2", "folder": "", "color": "#2d2d2d", "shortcut": "2"},
     ]
 }
 
@@ -51,7 +58,7 @@ PROGRESS_FG = "#4a9eff"
 class PhotoSorterApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Photo Sorter")
+        self.root.title("Nausort Media")
         self.root.configure(bg=BG)
         self.root.geometry("1200x750")
         self.root.minsize(900, 600)
@@ -84,8 +91,8 @@ class PhotoSorterApp:
         self.apply_config()
         self.bind_shortcuts()
 
-        self.log("[INFO] Program jalan...")
-        self.log("Tekan angka untuk shortcut tombol")
+        self.log("[INFO] Program running...")
+        self.log("Press numbers for button shortcuts")
         self.log("-" * 34)
 
     # ──────────────────────────────────────────

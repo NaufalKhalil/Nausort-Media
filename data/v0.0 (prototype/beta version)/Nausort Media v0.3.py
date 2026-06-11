@@ -1,7 +1,5 @@
 """
-Photo Sorting Application v2
-Perbaikan UX: wrap layout, auto-width button, rounded corners,
-dark dialogs, drag/pan, zoom reset antar foto, progress sederhana.
+Nausort Media Prototype v0.3
 """
 
 import tkinter as tk
@@ -566,47 +564,29 @@ class PhotoSorterApp:
     # ──────────────────────────────────────────
     def _add_category_widget(self, name="Kategori Baru", folder="",
                               color=BG2, shortcut=""):
-        frame = tk.Frame(self.cat_wrap, bg=BG, padx=4, pady=4)
-
-        # Category button — auto width to text
         sc_prefix = f"[{shortcut}] " if shortcut else ""
         display   = sc_prefix + name
         cat_btn   = RoundedButton(
-            frame, text=display, bg=color,
+            self.cat_wrap, text=display, bg=color,
             fg=TEXT, hover_bg=BG4,
             font=("Segoe UI", 10, "bold"),
             radius=RADIUS, padx=16, pady=10,
-            min_width=100,
         )
-        cat_btn.pack(pady=(0, 4))
-
-        # Browse button
-        browse_lbl = self._folder_label(folder)
-        browse_btn = RoundedButton(
-            frame, text=browse_lbl, bg=BG3,
-            fg=TEXT_DIM, hover_bg=BG4,
-            font=("Segoe UI", 9),
-            radius=RADIUS, padx=12, pady=6,
-            min_width=cat_btn._w,
-        )
-        browse_btn.pack()
 
         w = {
-            "frame":      frame,
-            "cat_btn":    cat_btn,
-            "browse_btn": browse_btn,
-            "name":       name,
-            "folder":     folder,
-            "color":      color,
-            "shortcut":   shortcut,
+            "frame":    cat_btn,   # kept for API compat (WrapFrame.remove uses this)
+            "cat_btn":  cat_btn,
+            "name":     name,
+            "folder":   folder,
+            "color":    color,
+            "shortcut": shortcut,
         }
         self.category_widgets.append(w)
 
         cat_btn.configure(command=lambda wi=w: self._sort_to(wi))
-        browse_btn.configure(command=lambda wi=w: self._choose_folder(wi))
         cat_btn.bind_right_click(lambda e, wi=w: self._context_menu(e, wi))
 
-        self.cat_wrap.add(frame)
+        self.cat_wrap.add(cat_btn)
         self._save_config()
         return w
 
@@ -627,12 +607,21 @@ class PhotoSorterApp:
     # CONTEXT MENU
     # ──────────────────────────────────────────
     def _context_menu(self, event, w):
+        # Show current folder as disabled label if set
+        folder_info = w.get("folder", "")
         menu = DarkMenu(self.root)
-        menu.add_command(label="Rename",          command=lambda: self._rename(w))
-        menu.add_command(label="Change Color",    command=lambda: self._change_color(w))
-        menu.add_command(label="Change Shortcut", command=lambda: self._change_shortcut(w))
+        if folder_info:
+            short = os.path.basename(folder_info) or folder_info
+            if len(short) > 28: short = short[:27] + "…"
+            menu.add_command(label=f"📁  {short}", state="disabled")
+            menu.add_separator()
+        menu.add_command(label="Set Folder Tujuan",  command=lambda: self._choose_folder(w))
         menu.add_separator()
-        menu.add_command(label="Delete Category", command=lambda: self._delete_cat(w))
+        menu.add_command(label="Rename",             command=lambda: self._rename(w))
+        menu.add_command(label="Change Color",       command=lambda: self._change_color(w))
+        menu.add_command(label="Change Shortcut",    command=lambda: self._change_shortcut(w))
+        menu.add_separator()
+        menu.add_command(label="Delete Category",    command=lambda: self._delete_cat(w))
         menu.tk_popup(event.x_root, event.y_root)
 
     def _rename(self, w):
@@ -662,7 +651,7 @@ class PhotoSorterApp:
         if messagebox.askyesno("Hapus", f"Hapus kategori '{w['name']}'?",
                                parent=self.root):
             self.category_widgets.remove(w)
-            self.cat_wrap.remove(w["frame"])
+            self.cat_wrap.remove(w["cat_btn"])
             self._save_config()
 
     def _add_category(self):
@@ -675,8 +664,8 @@ class PhotoSorterApp:
         folder = filedialog.askdirectory(parent=self.root)
         if folder:
             w["folder"] = folder
-            w["browse_btn"].configure_text(self._folder_label(folder))
             self._save_config()
+            self.log(f"[INFO] Folder tujuan '{w['name']}': {os.path.basename(folder)}", tag="info")
 
     # ──────────────────────────────────────────
     # IMPORT

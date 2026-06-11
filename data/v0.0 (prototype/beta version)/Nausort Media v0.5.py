@@ -1,7 +1,5 @@
 """
-Photo Sorting Application v2
-Perbaikan UX: wrap layout, auto-width button, rounded corners,
-dark dialogs, drag/pan, zoom reset antar foto, progress sederhana.
+Nausort Media Prototype v0.5
 """
 
 import tkinter as tk
