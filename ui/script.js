@@ -1,0 +1,664 @@
+// ============================================================
+//  Nausort v2.0 — Frontend Script
+//  Fixes in this version:
+//   - Delete category actually works (callback timing fixed)
+//   - Color picker Cancel/Apply buttons fixed (no form/bubbling)
+//   - All UI text in English
+// ============================================================
+'use strict';
+
+// ── State ──────────────────────────────────────────────────
+const S = {
+  categories:   [],
+  total:        0,
+  currentIndex: -1,
+  zoom:         1.0,
+  panX:         0,
+  panY:         0,
+  isPanning:    false,
+  panStartX:    0,
+  panStartY:    0,
+  imgNaturalW:  0,
+  imgNaturalH:  0,
+  baseScale:    1,
+  ctxTarget:    null,
+  ctxFolder:    '',
+  colorTarget:  null,
+  pickedColor:  '#2a2a2a',
+};
+
+// ── Color palette ──────────────────────────────────────────
+const PALETTE = [
+  ["#ff5050","#ff8c50","#ffc850","#dcff50","#8cff50","#50ff78","#50ffc8","#50c8ff","#508cff","#7850ff","#c850ff","#ff50c8"],
+  ["#dc4646","#dc7846","#dcb446","#bedc46","#78dc46","#46dc64","#46dcb4","#46b4dc","#4678dc","#6446dc","#b446dc","#dc46b4"],
+  ["#b43c3c","#b4643c","#b4963c","#a0b43c","#64b43c","#3cb45a","#3cb496","#3c96b4","#3c64b4","#5a3cb4","#963cb4","#b43c96"],
+  ["#823232","#825032","#826e32","#788232","#508232","#328246","#32826e","#326e82","#325082","#463282","#6e3282","#82326e"],
+  ["#5a2828","#5a3c28","#5a5028","#505a28","#3c5a28","#285a3c","#285a50","#28505a","#283c5a","#3c285a","#50285a","#5a2850"],
+];
+
+// ── Init ───────────────────────────────────────────────────
+window.addEventListener('pywebviewready', async () => {
+  buildColorPalette();
+  bindColorPickerButtons();  // attach before any modal opens
+  initResizeH();
+  initResizeV();
+  await initApp();
+});
+
+async function initApp() {
+  try {
+    const data = await window.pywebview.api.get_init_data();
+    S.categories   = data.categories || [];
+    S.total        = data.photo_count || 0;
+    S.currentIndex = data.current_index ?? -1;
+    renderCategories();
+    updateStats();
+    for (const entry of (data.log || [])) _appendLog(entry.msg, entry.tag);
+  } catch(e) {
+    console.error('Init failed:', e);
+    setTimeout(initApp, 800);
+  }
+}
+
+// ── Import folder ──────────────────────────────────────────
+async function importFolder() {
+  try {
+    const res = await window.pywebview.api.import_folder();
+    if (!res || !res.ok) return;
+    S.total        = res.total;
+    S.currentIndex = res.current_index;
+    updateStats();
+    if (res.image_data) showImage(res); else showPlaceholder();
+  } catch(e) { console.error(e); }
+}
+
+// ── Image display ──────────────────────────────────────────
+function showImage(data) {
+  const img         = document.getElementById('mainImage');
+  const placeholder = document.getElementById('imgPlaceholder');
+  const zoomCtrl    = document.getElementById('zoomControls');
+  if (!data.image_data) { showPlaceholder(); return; }
+
+  placeholder.classList.add('hidden');
+  img.classList.remove('hidden');
+  zoomCtrl.classList.remove('hidden');
+
+  S.zoom = 1; S.panX = 0; S.panY = 0;
+  img.onload = () => {
+    S.imgNaturalW = img.naturalWidth;
+    S.imgNaturalH = img.naturalHeight;
+    fitImage();
+  };
+  img.src = data.image_data;
+  document.getElementById('filenameLabel').textContent = data.filename || '';
+  S.currentIndex = data.index ?? S.currentIndex;
+  S.total        = data.total ?? S.total;
+  updateStats();
+  updateProgress();
+}
+
+function showPlaceholder() {
+  document.getElementById('mainImage').classList.add('hidden');
+  document.getElementById('imgPlaceholder').classList.remove('hidden');
+  document.getElementById('zoomControls').classList.add('hidden');
+  document.getElementById('filenameLabel').textContent = 'No photos loaded';
+  document.getElementById('progressBar').style.width   = '0%';
+  document.getElementById('statsCount').textContent    = '0';
+  document.getElementById('statsIndex').textContent    = '-';
+}
+
+// ── Fit image ──────────────────────────────────────────────
+function fitImage() {
+  const container = document.getElementById('imgContainer');
+  const img       = document.getElementById('mainImage');
+  if (!img || img.classList.contains('hidden')) return;
+
+  const cw = container.clientWidth;
+  const ch = container.clientHeight;
+  const iw = S.imgNaturalW || img.naturalWidth  || cw;
+  const ih = S.imgNaturalH || img.naturalHeight || ch;
+
+  S.baseScale = Math.min(cw / iw, ch / ih, 1);
+  const dispW = iw * S.baseScale * S.zoom;
+  const dispH = ih * S.baseScale * S.zoom;
+
+  img.style.width    = dispW + 'px';
+  img.style.height   = dispH + 'px';
+  img.style.left     = ((cw - dispW) / 2 + S.panX) + 'px';
+  img.style.top      = ((ch - dispH) / 2 + S.panY) + 'px';
+  img.style.position = 'absolute';
+}
+
+// ── Zoom (cursor-centred) ──────────────────────────────────
+function applyZoom(newZoom, cursorX, cursorY) {
+  const container = document.getElementById('imgContainer');
+  const img       = document.getElementById('mainImage');
+  if (!img || img.classList.contains('hidden')) return;
+
+  const cw = container.clientWidth,  ch = container.clientHeight;
+  const iw = S.imgNaturalW || img.naturalWidth  || cw;
+  const ih = S.imgNaturalH || img.naturalHeight || ch;
+  const bs = S.baseScale || Math.min(cw / iw, ch / ih, 1);
+
+  const cx = (cursorX !== undefined) ? cursorX : cw / 2;
+  const cy = (cursorY !== undefined) ? cursorY : ch / 2;
+
+  const oldW   = iw * bs * S.zoom;
+  const oldH   = ih * bs * S.zoom;
+  const imgL   = (cw - oldW) / 2 + S.panX;
+  const imgT   = (ch - oldH) / 2 + S.panY;
+  const fracX  = (cx - imgL) / oldW;
+  const fracY  = (cy - imgT) / oldH;
+
+  S.zoom = Math.min(Math.max(newZoom, 0.1), 12);
+  const newW = iw * bs * S.zoom;
+  const newH = ih * bs * S.zoom;
+  S.panX = cx - (cw - newW) / 2 - fracX * newW;
+  S.panY = cy - (ch - newH) / 2 - fracY * newH;
+  fitImage();
+}
+
+function zoomIn(cx, cy)  { applyZoom(S.zoom * 1.25, cx, cy); }
+function zoomOut(cx, cy) { applyZoom(S.zoom / 1.25, cx, cy); }
+function zoomReset()     { S.zoom = 1; S.panX = 0; S.panY = 0; fitImage(); }
+
+// ── Pan + scroll ───────────────────────────────────────────
+(function initPan() {
+  const container = document.getElementById('imgContainer');
+
+  container.addEventListener('mousedown', e => {
+    const img = document.getElementById('mainImage');
+    if (e.target !== img) return;
+    S.isPanning = true;
+    S.panStartX = e.clientX - S.panX;
+    S.panStartY = e.clientY - S.panY;
+    img.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!S.isPanning) return;
+    S.panX = e.clientX - S.panStartX;
+    S.panY = e.clientY - S.panStartY;
+    fitImage();
+  });
+  document.addEventListener('mouseup', () => {
+    if (!S.isPanning) return;
+    S.isPanning = false;
+    const img = document.getElementById('mainImage');
+    if (img) img.style.cursor = 'grab';
+  });
+  container.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = container.getBoundingClientRect();
+    if (e.deltaY < 0) zoomIn(e.clientX - rect.left, e.clientY - rect.top);
+    else              zoomOut(e.clientX - rect.left, e.clientY - rect.top);
+  }, { passive: false });
+  container.addEventListener('dblclick', () => zoomReset());
+  new ResizeObserver(() => fitImage()).observe(container);
+})();
+
+// ── Navigation ─────────────────────────────────────────────
+async function goPrev() {
+  const res = await window.pywebview.api.go_prev();
+  if (res && res.image_data) showImage(res);
+}
+async function goNext() {
+  const res = await window.pywebview.api.go_next();
+  if (res && res.image_data) showImage(res);
+}
+async function doUndo() {
+  const res = await window.pywebview.api.undo();
+  if (res && res.ok) { if (res.image_data) showImage(res); else showPlaceholder(); }
+}
+async function doRedo() {
+  const res = await window.pywebview.api.redo();
+  if (res && res.ok) { if (res.image_data) showImage(res); else showPlaceholder(); }
+}
+
+// ── Sort ───────────────────────────────────────────────────
+async function sortTo(index) {
+  const res = await window.pywebview.api.sort_to(index);
+  if (!res || !res.ok) { showToast(res?.error || 'Move failed', false); return; }
+  S.total = res.total ?? S.total;
+  if (res.image_data) showImage(res); else showPlaceholder();
+}
+
+// ── Render categories ──────────────────────────────────────
+function renderCategories() {
+  const wrap = document.getElementById('catWrap');
+  wrap.innerHTML = '';
+  S.categories.forEach((cat, i) => {
+    const btn = document.createElement('button');
+    btn.className        = 'cat-btn';
+    btn.style.background = cat.color || '#2a2a2a';
+    btn.appendChild(document.createTextNode(cat.name));
+    if (cat.shortcut) {
+      const sc = document.createElement('span');
+      sc.className   = 'cat-shortcut';
+      sc.textContent = `[${cat.shortcut}]`;
+      btn.appendChild(sc);
+    }
+    btn.addEventListener('click',       () => sortTo(i));
+    btn.addEventListener('contextmenu', e  => { e.preventDefault(); showCtxMenu(e, i, cat); });
+    wrap.appendChild(btn);
+  });
+}
+
+async function addCategory() {
+  showInputModal('Add Category', 'Category name:', '', async (name) => {
+    if (!name || !name.trim()) return;
+    const res = await window.pywebview.api.add_category(name.trim());
+    if (res && res.ok) { S.categories = res.categories; renderCategories(); }
+  });
+}
+
+// ── Context menu ───────────────────────────────────────────
+let _ctxIndex = -1;
+
+function showCtxMenu(e, index, cat) {
+  _ctxIndex   = index;
+  S.ctxTarget = cat;
+  S.ctxFolder = cat.folder || '';
+
+  const menu     = document.getElementById('ctxMenu');
+  const info     = document.getElementById('ctxFolderInfo');
+  const openBtn  = document.getElementById('ctxOpenFolder');
+
+  if (S.ctxFolder) {
+    const name = S.ctxFolder.split(/[\\/]/).pop();
+    openBtn.textContent = `📁 ${name.length > 28 ? name.slice(0,27)+'…' : name} ↗`;
+    info.classList.remove('hidden');
+  } else {
+    info.classList.add('hidden');
+  }
+
+  menu.classList.remove('hidden');
+  menu.style.left = e.clientX + 'px';
+  menu.style.top  = e.clientY + 'px';
+
+  requestAnimationFrame(() => {
+    const r = menu.getBoundingClientRect();
+    if (r.right  > window.innerWidth)  menu.style.left = (e.clientX - r.width)  + 'px';
+    if (r.bottom > window.innerHeight) menu.style.top  = (e.clientY - r.height) + 'px';
+  });
+}
+
+function hideCtxMenu() { document.getElementById('ctxMenu').classList.add('hidden'); }
+
+function ctxOpenFolder() {
+  hideCtxMenu();
+  window.pywebview.api.open_category_folder(_ctxIndex);
+}
+async function ctxSetFolder() {
+  hideCtxMenu();
+  const res = await window.pywebview.api.choose_category_folder(_ctxIndex);
+  if (res && res.ok) { S.categories = res.categories; renderCategories(); }
+}
+function ctxRename() {
+  hideCtxMenu();
+  showInputModal('Rename Category', 'New name:', S.ctxTarget?.name || '', async (name) => {
+    if (!name || !name.trim()) return;
+    const res = await window.pywebview.api.rename_category(_ctxIndex, name.trim());
+    if (res && res.ok) { S.categories = res.categories; renderCategories(); }
+  });
+}
+function ctxChangeColor() {
+  hideCtxMenu();
+  S.colorTarget = _ctxIndex;
+  openColorPicker(S.ctxTarget?.color || '#2a2a2a');
+}
+function ctxChangeShortcut() {
+  hideCtxMenu();
+  showInputModal('Change Shortcut', 'New shortcut (1 character):', S.ctxTarget?.shortcut || '', async (sc) => {
+    const res = await window.pywebview.api.set_category_shortcut(_ctxIndex, sc || '');
+    if (res && res.ok) { S.categories = res.categories; renderCategories(); }
+  });
+}
+
+// ── DELETE CATEGORY — ROOT CAUSE FIX ──────────────────────
+// Bug: showConfirmModal sets _modalCallback, then ctxDelete immediately
+// calls hideCtxMenu which triggers a 'click' event on document that closes
+// the modal via closeModal() before the user can press Delete.
+// Fix: wrap the confirm open in setTimeout(0) so the ctxMenu click event
+// fully finishes propagating before the modal appears.
+function ctxDelete() {
+  const index = _ctxIndex;
+  const name  = S.ctxTarget?.name || 'this category';
+  hideCtxMenu();
+  // Defer so the document click from hiding ctx-menu doesn't close the modal
+  setTimeout(() => {
+    showConfirmModal(`Delete category "${name}"?`, async () => {
+      const res = await window.pywebview.api.delete_category(index);
+      if (res && res.ok) {
+        S.categories = res.categories;
+        renderCategories();
+        showToast(`Deleted: ${name}`, true);
+      } else {
+        showToast('Delete failed', false);
+      }
+    });
+  }, 0);
+}
+
+// ── Keyboard shortcuts ─────────────────────────────────────
+document.addEventListener('keydown', async e => {
+  const active    = document.activeElement;
+  const inInput   = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+  const modalOpen = !document.getElementById('modalOverlay').classList.contains('hidden')
+                 || !document.getElementById('colorOverlay').classList.contains('hidden');
+  if (inInput || modalOpen) return;
+
+  if      (e.key === 'ArrowLeft')  { e.preventDefault(); goPrev(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); }
+  else if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z') { e.preventDefault(); doUndo(); }
+  else if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='y') { e.preventDefault(); doRedo(); }
+  else if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomIn();  }
+  else if (e.key === '-')                  { e.preventDefault(); zoomOut(); }
+  else if (e.key === 'Backspace')          { e.preventDefault(); zoomReset(); }
+  else {
+    const char = e.key.toUpperCase();
+    S.categories.forEach((cat, i) => {
+      if (cat.shortcut && cat.shortcut.toUpperCase() === char) sortTo(i);
+    });
+  }
+});
+
+// ── Stats / Progress ───────────────────────────────────────
+function updateStats() {
+  document.getElementById('statsCount').textContent = S.total;
+  document.getElementById('statsIndex').textContent =
+    S.currentIndex >= 0 ? `${S.currentIndex + 1}/${S.total}` : '-';
+}
+function updateProgress() {
+  const pct = S.total > 0 ? ((S.currentIndex + 1) / S.total) * 100 : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ── Terminal ───────────────────────────────────────────────
+const MAX_LOG = 500, TRIM_LOG = 350;
+let logCount = 0;
+
+window._appendLog = function(msg, tag = 'info') {
+  const lines = document.getElementById('termLines');
+  const div   = document.createElement('div');
+  const tagMap = { info:'log-info', move:'log-move', undo:'log-undo',
+                   redo:'log-redo', warn:'log-warn', dim:'log-dim' };
+  div.className   = tagMap[tag] || '';
+  div.textContent = msg;
+  lines.appendChild(div);
+  if (++logCount >= MAX_LOG) {
+    const del = logCount - TRIM_LOG;
+    for (let i = 0; i < del; i++) if (lines.firstChild) lines.removeChild(lines.firstChild);
+    logCount = TRIM_LOG;
+  }
+  document.getElementById('terminal').scrollTop = 999999;
+};
+
+function clearTerminal() {
+  document.getElementById('termLines').innerHTML = '';
+  logCount = 0;
+}
+
+// ── Color Picker ───────────────────────────────────────────
+function buildColorPalette() {
+  const grid = document.getElementById('colorPalette');
+  PALETTE.forEach(row => row.forEach(color => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch';
+    sw.style.background = color;
+    sw.dataset.color = color;
+    sw.addEventListener('click', () => selectSwatch(color));
+    grid.appendChild(sw);
+  }));
+}
+
+// Bind the static Cancel / Apply buttons in the color picker HTML
+// using addEventListener instead of onclick so stopPropagation works.
+function bindColorPickerButtons() {
+  const cancelBtn = document.getElementById('colorCancelBtn');
+  const applyBtn  = document.getElementById('colorApplyBtn');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      document.getElementById('colorOverlay').classList.add('hidden');
+    });
+  }
+  if (applyBtn) {
+    applyBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      applyColor();
+    });
+  }
+}
+
+function openColorPicker(initial = '#2a2a2a') {
+  S.pickedColor = initial;
+  document.getElementById('colorOverlay').classList.remove('hidden');
+  updateColorUI(initial);
+}
+
+function selectSwatch(color) { S.pickedColor = color; updateColorUI(color); }
+
+function updateColorUI(hex) {
+  document.getElementById('colorPreview').style.background = hex;
+  document.getElementById('colorHexInput').value = hex;
+  document.querySelectorAll('.swatch').forEach(sw =>
+    sw.classList.toggle('selected', sw.dataset.color === hex));
+  const rgb = hexToRgb(hex);
+  if (rgb) {
+    ['R','G','B'].forEach(c => {
+      document.getElementById('slider'+c).value = rgb[c.toLowerCase()];
+      document.getElementById('val'+c).textContent = rgb[c.toLowerCase()];
+    });
+  }
+}
+
+function onHexInput(val) {
+  if (!val.startsWith('#')) val = '#' + val;
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) { S.pickedColor = val; updateColorUI(val); }
+}
+
+function onSlider() {
+  const r = +document.getElementById('sliderR').value;
+  const g = +document.getElementById('sliderG').value;
+  const b = +document.getElementById('sliderB').value;
+  document.getElementById('valR').textContent = r;
+  document.getElementById('valG').textContent = g;
+  document.getElementById('valB').textContent = b;
+  const hex = rgbToHex(r, g, b);
+  S.pickedColor = hex;
+  document.getElementById('colorPreview').style.background = hex;
+  document.getElementById('colorHexInput').value = hex;
+  document.querySelectorAll('.swatch').forEach(sw =>
+    sw.classList.toggle('selected', sw.dataset.color === hex));
+}
+
+async function applyColor() {
+  const color  = S.pickedColor;
+  const target = S.colorTarget;
+  document.getElementById('colorOverlay').classList.add('hidden');
+  if (target === null) return;
+  const res = await window.pywebview.api.set_category_color(target, color);
+  if (res && res.ok) { S.categories = res.categories; renderCategories(); }
+}
+
+function closeColorPicker(e) {
+  if (e && e.target !== document.getElementById('colorOverlay')) return;
+  document.getElementById('colorOverlay').classList.add('hidden');
+}
+
+function hexToRgb(hex) {
+  const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return r ? { r:parseInt(r[1],16), g:parseInt(r[2],16), b:parseInt(r[3],16) } : null;
+}
+function rgbToHex(r, g, b) {
+  return '#' + [r,g,b].map(v => Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')).join('');
+}
+
+// ── Modal (Input + Confirm) ────────────────────────────────
+let _modalCallback = null;
+
+function _openModal()    { document.getElementById('modalOverlay').classList.remove('hidden'); }
+function _dismissModal() { document.getElementById('modalOverlay').classList.add('hidden'); _modalCallback = null; }
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay')) return;
+  _dismissModal();
+}
+
+function showInputModal(title, label, initial, onOk) {
+  _modalCallback = onOk;
+  document.getElementById('modalTitle').textContent = title;
+
+  const body  = document.getElementById('modalBody');
+  body.innerHTML = '';
+  const p = document.createElement('p');
+  p.style.cssText = 'font-size:11px;color:var(--text-dim);margin-bottom:8px;';
+  p.textContent   = label;
+
+  const input   = document.createElement('input');
+  input.type    = 'text';
+  input.value   = initial;
+  input.id      = 'modalInput';
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.stopPropagation(); confirmModal(); }
+    if (e.key === 'Escape') { e.stopPropagation(); _dismissModal(); }
+  });
+  body.appendChild(p);
+  body.appendChild(input);
+
+  const footer = document.getElementById('modalFooter');
+  footer.innerHTML = '';
+
+  const btnCancel = document.createElement('button');
+  btnCancel.className   = 'modal-btn';
+  btnCancel.textContent = 'Cancel';
+  btnCancel.addEventListener('click', e => { e.stopPropagation(); _dismissModal(); });
+
+  const btnOk = document.createElement('button');
+  btnOk.className   = 'modal-btn primary';
+  btnOk.textContent = 'OK';
+  btnOk.addEventListener('click', e => { e.stopPropagation(); confirmModal(); });
+
+  footer.appendChild(btnCancel);
+  footer.appendChild(btnOk);
+  _openModal();
+  setTimeout(() => input.focus(), 50);
+}
+
+function showConfirmModal(message, onOk) {
+  _modalCallback = onOk;
+  document.getElementById('modalTitle').textContent = 'Confirm';
+
+  const body = document.getElementById('modalBody');
+  body.innerHTML = '';
+  const p = document.createElement('p');
+  p.style.cssText = 'font-size:12px;color:var(--text);';
+  p.textContent   = message;
+  body.appendChild(p);
+
+  const footer = document.getElementById('modalFooter');
+  footer.innerHTML = '';
+
+  const btnCancel = document.createElement('button');
+  btnCancel.className   = 'modal-btn';
+  btnCancel.textContent = 'Cancel';
+  btnCancel.addEventListener('click', e => { e.stopPropagation(); _dismissModal(); });
+
+  const btnDelete = document.createElement('button');
+  btnDelete.className        = 'modal-btn primary';
+  btnDelete.textContent      = 'Delete';
+  btnDelete.style.background = 'var(--error)';
+  btnDelete.style.borderColor= 'var(--error)';
+  btnDelete.style.color      = '#fff';
+  btnDelete.addEventListener('click', e => {
+    e.stopPropagation();
+    const cb = _modalCallback;
+    _dismissModal();
+    if (cb) cb();
+  });
+
+  footer.appendChild(btnCancel);
+  footer.appendChild(btnDelete);
+  _openModal();
+}
+
+function confirmModal() {
+  const input = document.getElementById('modalInput');
+  const val   = input ? input.value : '';
+  const cb    = _modalCallback;
+  _dismissModal();
+  if (cb) cb(val);
+}
+
+// ── Toast ──────────────────────────────────────────────────
+let _toastTimer = null;
+function showToast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast' + (ok ? '' : ' error');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.add('hidden'), 2500);
+}
+
+// ── Global click: close context menu ──────────────────────
+document.addEventListener('click', e => {
+  if (!e.target.closest('#ctxMenu')) hideCtxMenu();
+});
+document.addEventListener('contextmenu', e => {
+  if (!e.target.closest('.cat-btn')) { e.preventDefault(); hideCtxMenu(); }
+});
+
+// ── Horizontal splitter: left ↔ right ─────────────────────
+function initResizeH() {
+  const handle    = document.getElementById('resizeHandle');
+  const panelLeft = document.getElementById('panelLeft');
+  let dragging = false, startX = 0, startW = 0;
+
+  handle.addEventListener('mousedown', e => {
+    dragging = true; startX = e.clientX;
+    startW   = panelLeft.getBoundingClientRect().width;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const nw = Math.min(Math.max(startW + e.clientX - startX, 400), window.innerWidth - 220);
+    panelLeft.style.width = nw + 'px';
+    fitImage();
+  });
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+  });
+}
+
+// ── Vertical splitter: image ↕ categories ─────────────────
+function initResizeV() {
+  const handle  = document.getElementById('resizeHandleV');
+  const catArea = document.getElementById('catArea');
+  let dragging = false, startY = 0, startH = 0;
+
+  handle.addEventListener('mousedown', e => {
+    dragging = true; startY = e.clientY;
+    startH   = catArea.getBoundingClientRect().height;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'row-resize';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const newH = Math.min(Math.max(startH + (startY - e.clientY), 70), 400);
+    catArea.style.height = newH + 'px';
+    fitImage();
+  });
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+  });
+}
