@@ -1,261 +1,375 @@
+<div align="center">
+
+<img src="https://github.com/user-attachments/assets/f4796c01-af2d-4752-b343-35a46caf05dd" width="100" alt="Naulex Translate Logo">
+
+<h1>Naulex Translate</h1>
+
+<p><strong>Translator desktop modern · UI gelap minimal · Performa instan</strong></p>
+
+<p>
+  <a href="https://github.com/NaufalKhalil/Naulex-Translate/releases/latest">
+    <img src="https://img.shields.io/badge/version-2.0-orange?style=flat-square" alt="Version">
+  </a>
+  <a href="https://github.com/NaufalKhalil/Naulex-Translate">
+    <img src="https://img.shields.io/badge/platform-Windows-blue?style=flat-square" alt="Platform">
+  </a>
+  <a href="https://python.org">
+    <img src="https://img.shields.io/badge/language-Python-yellow?style=flat-square" alt="Language">
+  </a>
+  <a href="https://github.com/NaufalKhalil/Naulex-Translate">
+    <img src="https://img.shields.io/badge/status-Active-success?style=flat-square" alt="Status">
+  </a>
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square" alt="License">
+  </a>
+</p>
+
+<p>
+  <a href="https://github.com/NaufalKhalil/Naulex-Translate/releases/latest">
+    <img src="https://img.shields.io/badge/⬇_Download_v2.0-FF6B35?style=for-the-badge" alt="Download">
+  </a>
+  &nbsp;
+  <a href="#-installation">
+    <img src="https://img.shields.io/badge/📖_Quick_Start-555555?style=for-the-badge" alt="Quick Start">
+  </a>
+</p>
+
+</div>
+
+---
+
+## 📋 Daftar Isi
+
+- [Tentang](#-tentang)
+- [Fitur Utama](#-fitur-utama)
+- [Yang Baru di v2.0](#-yang-baru-di-v20)
+- [Bahasa yang Didukung](#-bahasa-yang-didukung)
+- [Kompatibel dengan App & Game](#-kompatibel-dengan-app--game)
+- [Perbandingan](#-perbandingan)
+- [Preview](#️-preview)
+- [Instalasi](#-instalasi)
+- [Cara Pakai](#-cara-pakai)
+- [Sistem Favorit](#-sistem-favorit)
+- [Dibangun dengan](#️-dibangun-dengan)
+- [Download](#-download)
+- [Kontak](#-kontak)
+- [Lisensi](#-lisensi)
+
+---
+
+## 💡 Tentang
+
+**Naulex Translate** adalah translator desktop yang cepat dan ringan, dirancang untuk penggunaan real-time.
+
+Dibuat untuk **gamer, pelajar, dan pengguna sehari-hari** — terjemahan instan dengan antarmuka gelap yang bersih dan minim gangguan.
+
+> *No clutter. No delay. Just translate.*
+
+---
+
+## ✨ Fitur Utama
+
+| Fitur | Keterangan |
+|---|---|
+| 🌐 **100+ Bahasa** | Mencakup semua bahasa utama dunia |
+| ⚡ **Cepat & Responsif** | Terjemahan instan, tanpa lag |
+| 🎯 **Smart Selector** | Pemilihan bahasa yang mudah dan intuitif |
+| 🔍 **Quick Search** | Cari bahasa dengan cepat |
+| ⭐ **Sistem Favorit** | Pin bahasa yang paling sering dipakai |
+| 📋 **Terminal Log** | Monitor aktivitas secara real-time |
+| ⌨️ **Hotkey (F2)** | Workflow lebih cepat lewat keyboard |
+| 🌙 **Dark UI** | Desain gelap, bersih, dan nyaman di mata |
+| 🖱️ **Klik Kanan** | Akses cepat ke fitur favorit & pengaturan |
+
+---
+
+## 🚀 Yang Baru di v2.0
+
 <table>
   <tr>
-    <td width="" align="center">
-      <img src="./data/design/icon apps/icon.svg" width="120">
+    <td width="50%">
+
+**✨ UI Modern Baru**
+Desain ulang total — lebih bersih, modern, dan konsisten dari versi sebelumnya.
+
+**⭐ Sistem Favorit Bahasa**
+Pin bahasa favorit di bagian atas daftar, tidak perlu scroll terus.
+
+
+**📋 Terminal Log Interaktif**
+Panel log baru untuk memantau aktivitas terjemahan secara real-time.
+
+**⚡ Performa Ditingkatkan**
+Respon lebih cepat dan penggunaan memori lebih efisien.
+
+  </tr>
+</table>
+
+---
+
+## 🌍 Bahasa yang Didukung
+
+Mendukung **100+ bahasa internasional**, termasuk:
+
+<table>
+  <tr>
+    <td>🇮🇩 Indonesia</td>
+    <td>🇬🇧 Inggris</td>
+    <td>🇯🇵 Jepang</td>
+    <td>🇰🇷 Korea</td>
+  </tr>
+  <tr>
+    <td>🇨🇳 China (Sederhana)</td>
+    <td>🇹🇼 China (Tradisional)</td>
+    <td>🇸🇦 Arab</td>
+    <td>🇩🇪 Jerman</td>
+  </tr>
+  <tr>
+    <td>🇫🇷 Prancis</td>
+    <td>🇪🇸 Spanyol</td>
+    <td>🇵🇹 Portugis</td>
+    <td>🇷🇺 Rusia</td>
+  </tr>
+  <tr>
+    <td>🇮🇹 Italia</td>
+    <td>🇹🇷 Turki</td>
+    <td>🇮🇳 Hindi</td>
+    <td>🇻🇳 Vietnam</td>
+  </tr>
+  <tr>
+    <td>🇹🇭 Thailand</td>
+    <td>🇲🇾 Melayu</td>
+    <td>🇵🇭 Filipina</td>
+    <td>+ banyak lagi</td>
+  </tr>
+</table>
+
+---
+
+## 🎮 Kompatibel dengan App & Game
+
+<table>
+  <tr>
+    <td width="50%">
+
+**💬 Chat & Komunikasi**
+- WhatsApp Web
+- Discord
+- Telegram
+- Line
+- Slack, Teams, Signal
+- dan banyak lagi
+
     </td>
-    <td>
-      <h1>Nausort Media v2.0</h1>
-      <p>
-        A modern desktop application for organizing, sorting, and managing photo collections with a clean and efficient workflow.
-      </p>
+    <td width="50%">
+
+**🎮 Gaming**
+- Minecraft
+- Genshin Impact
+- Roblox
+- Valorant
+- Mobile games (via emulator)
+- dan banyak lagi
+
     </td>
   </tr>
 </table>
 
-[![Version](https://img.shields.io/badge/version-2.0-orange?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
-[![Platform](https://img.shields.io/badge/platform-Windows-blue?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media)
-[![Language](https://img.shields.io/badge/language-Python-yellow?style=flat-square)](https://python.org)
-[![Status](https://img.shields.io/badge/status-Active-success?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)](./LICENSE)
-
-</td>
-</tr>
-</table>
-
 ---
 
-## 📖 Table of Contents
+## 🆚 Perbandingan
 
-* [About](#about)
-* [Features](#-features)
-* [What's New](#-whats-new-v20)
-* [Supported Formats](#-supported-formats)
-* [Use Cases](#-use-cases)
-* [Comparison](#-comparison)
-* [Preview](#-preview)
-* [Installation](#-installation)
-* [Usage](#-usage)
-* [Organization System](#-organization-system)
-* [Built With](#️-built-with)
-* [Download](#-download)
-* [Support](#-support)
-* [Contact](#-contact)
-* [License](#-license)
-
----
-
-## About
-
-**Nausort Media** is a fast and lightweight desktop application designed to organize and manage photo collections efficiently.
-
-Built for **photographers, content creators, designers, and everyday users**, it helps keep image libraries clean, structured, and easy to navigate.
-
-No clutter. No confusion. Just organize.
-
----
-
-## ✨ Features
-
-* 📁 Smart Photo Organization
-* 🖼️ Multi-Format Image Support
-* ⚡ Fast Folder Scanning
-* 🔍 Quick Image Discovery
-* ⭐ Favorites System
-* 📋 Activity Log
-* 🎯 Simple Workflow
-* 🌙 Modern Dark UI
-
----
-
-## 🚀 What's New (v2.0)
-
-* ✨ Completely redesigned modern UI
-* ⚡ Improved scanning performance
-* 📂 Enhanced folder management
-* 📋 Improved activity logging
-* 🎯 Better responsiveness and usability
-
----
-
-## 📂 Supported Formats
-
-Supports popular image formats including:
-
-### Images
-
-* JPG / JPEG
-* PNG
-* WEBP
-* BMP
-* GIF
-* TIFF
-
----
-
-## 📸 Use Cases
-
-### Photo Management
-
-Nausort Media can be used for:
-
-* Personal photo collections
-* Family albums
-* Camera imports
-* Travel photography archives
-* Content creator assets
-* Social media image libraries
-* Backup organization
-
-### Professional Workflow
-
-Useful for:
-
-* Photographers
-* Graphic designers
-* Content creators
-* Social media managers
-* Digital artists
-* Media archivists
-* Users managing large image collections
-
----
-
-## 🆚 Comparison
-
-| Feature                    | Nausort Media | Traditional File Explorer |
-| -------------------------- | ------------- | ------------------------- |
-| 🎨 Modern UI               | ✅ Yes         | ❌ No                      |
-| ⚡ Fast Image Scanning      | ✅ Yes         | ⚠️ Limited                |
-| 📂 Photo Organization      | ✅ Yes         | ⚠️ Basic                  |
-| 📋 Activity Log            | ✅ Yes         | ❌ No                      |
-| ⭐ Favorites System         | ✅ Yes         | ❌ No                      |
-| 🖱️ User-Friendly Workflow | ✅ Yes         | ⚠️ Basic                  |
+| Fitur | Naulex Translate | Translator Lain |
+|---|:---:|:---:|
+| 🎨 UI Modern | ✅ | ❌ |
+| ⭐ Sistem Favorit Bahasa | ✅ | ❌ |
+| 📋 Terminal Log | ✅ | ❌ |
+| 🖱️ Interaksi Klik Kanan | ✅ | ❌ |
+| ⚡ Ringan & Cepat | ✅ | ⚠️ |
+| 🧑‍💻 Developer-style UI | ✅ | ❌ |
+| ⌨️ Hotkey Global | ✅ | ❌ |
 
 ---
 
 ## 🖼️ Preview
 
-<img src="./data/design/preview apps/preview1.png" width="">
+<div align="center">
+  <img src="./assets/images/preview1.png" width="800" alt="Naulex Translate Preview">
+</div>
 
 ---
 
-## ⚙️ What's it built with?
+## ⚙️ Instalasi
 
-* Python (Desktop App)
-* Custom UI (Dark Theme)
-* Image Management System
-* Event-driven Architecture
-* High-performance File Processing
+### Prasyarat
 
----
-
-## 📥 Installation
-
-### Prerequisites
-
-* Windows 10 or higher
-* Python 3.8+ (for development)
+- Windows 10 atau lebih baru
+- Python 3.8+ *(hanya untuk development)*
 
 ### Quick Start
 
-1. Download the latest release:
-   https://github.com/NaufalKhalil/Nausort-Media/releases/latest
+**1.** Download rilis terbaru:
 
-2. Extract the `.zip` file
+```
+https://github.com/NaufalKhalil/Naulex-Translate/releases/latest
+```
 
-3. Run `Nausort-Media.exe`
+**2.** Ekstrak file `.zip`
 
-4. Start organizing your photos 🚀
+**3.** Jalankan `Naulex-Translate.exe`
 
----
-
-## 🎯 Usage
-
-### Launch the Application
-
-Open the `.exe` file to start Nausort Media.
-
-### Select a Folder
-
-* Choose a folder containing images
-* The application will scan supported files automatically
-
-### Organize Your Collection
-
-* Browse image collections
-* Sort and manage files efficiently
-* Keep folders structured and organized
-
-### Monitor Activity
-
-Use the built-in activity panel to view:
-
-* Scan progress
-* File operations
-* System messages
-* Processing information
+**4.** Mulai terjemahkan 🚀
 
 ---
 
-## ⭐ Organization System
+## 🎯 Cara Pakai
 
-Designed for a faster workflow:
+### Jalankan Aplikasi
+Buka file `.exe` untuk memulai Naulex Translate.
 
-* 📂 Manage large photo collections easily
-* ⭐ Keep important folders accessible
-* ⚡ Faster navigation through image libraries
-* 🎯 Built for productivity and organization
+### Pilih Bahasa Target
+- **Klik kiri** → Atur sebagai bahasa aktif
+- Bahasa langsung berlaku saat itu juga
 
-> Built for efficiency. Designed for simplicity.
+### Mulai Menerjemahkan
+1. Buka aplikasi apapun (chat, browser, game, dll.)
+2. Ketik seperti biasa
+3. Terjemahan muncul secara instan
+
+### Keyboard Shortcut
+| Shortcut | Fungsi |
+|---|---|
+| `F2` | Quick trigger |
+| `Klik kanan` | Menu favorit & pengaturan |
+
+### Monitor Aktivitas
+Gunakan panel terminal bawaan untuk melihat:
+- Log terjemahan
+- Respons sistem
+- Informasi debug
 
 ---
 
-## ⚙️ Built With
+## ⭐ Sistem Favorit
 
-* **Python** — Core application
-* **Custom UI Framework** — Interface system
-* **Dark UI Design** — Modern appearance
-* **Event-driven Architecture** — Responsive performance
-* **Image Processing Engine** — Fast and efficient file handling
+Buat workflow kamu lebih cepat dan efisien:
+
+1. **Klik kanan** pada bahasa manapun
+2. Pilih **Tambah/Hapus Favorit** ⭐
+3. Bahasa favorit **muncul di bagian atas** daftar
+4. **Tidak perlu scroll** — favorit selalu siap
+
+> *Built for speed. Designed for convenience.*
+
+---
+
+## ⚙️ Dibangun dengan
+
+<table>
+  <tr>
+    <td align="center" width="120">
+      <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"><br>
+      <strong>Python</strong><br>
+      <sub>Core App</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://img.shields.io/badge/PyWebView-000000?style=flat-square" alt="PyWebView"><br>
+      <strong>PyWebView</strong><br>
+      <sub>UI Framework</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://img.shields.io/badge/Dark_UI-1a1a2e?style=flat-square" alt="Dark UI"><br>
+      <strong>Custom UI</strong><br>
+      <sub>Dark Theme</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://img.shields.io/badge/Translation_API-00D4FF?style=flat-square" alt="API"><br>
+      <strong>Translation API</strong><br>
+      <sub>Fast & Accurate</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
 ## 📥 Download
 
-### 🚀 Get the Latest Version
+<div align="center">
 
-[![Download](https://img.shields.io/badge/Download-Nausort%20Media%20v2.0-blue?style=for-the-badge\&logo=windows)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
+### 🚀 Versi Terbaru — v2.0
+
+<a href="https://github.com/NaufalKhalil/Naulex-Translate/releases/latest">
+  <img src="https://img.shields.io/badge/⬇_Download_Naulex_Translate_v2.0-FF6B35?style=for-the-badge&logoColor=white" alt="Download v2.0">
+</a>
+
+<br><br>
+
+| Platform | Status | Minimum |
+|:---:|:---:|:---:|
+| Windows 10 | ✅ Didukung | — |
+| Windows 11 | ✅ Didukung | — |
+| macOS | ❌ Belum | — |
+| Linux | ❌ Belum | — |
+
+</div>
 
 ---
 
 ## 💬 Support
 
-If you like this project:
+Kalau kamu suka project ini:
 
-* ⭐ Star the repository
-* 🍴 Fork and contribute
-* 🐞 Report bugs or suggest features
+- ⭐ **Star** repository ini
+- 🍴 **Fork** dan kontribusi
+- 🐞 **Laporkan bug** atau beri saran fitur
 
-Your support helps this project grow 🚀
+Dukungan kamu membantu project ini terus berkembang 🚀
 
 ---
 
-## 📧 Contact
+## 📧 Kontak
 
-If there is any confusion, bug report, or suggestion, feel free to contact me:
+Ada pertanyaan, bug, atau saran? Hubungi saya:
 
-* Instagram: https://www.instagram.com/khalil.naufal_/
+- **Instagram:** [@khalil.naufal_](https://www.instagram.com/khalil.naufal_/)
+- **GitHub:** [@NaufalKhalil](https://github.com/NaufalKhalil)
 
 ---
 
 ## 👨‍💻 Developer
 
-Created by: **Naufal Khalil ID**
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/NaufalKhalil">
+        <img src="https://github.com/NaufalKhalil.png" width="80" style="border-radius:50%" alt="Naufal Khalil"><br>
+        <strong>Naufal Khalil ID</strong>
+      </a><br>
+      <sub>Creator & Developer</sub>
+    </td>
+  </tr>
+</table>
+
+</div>
 
 ---
 
-## 📄 License
+## 📄 Lisensi
 
-This project is licensed under the **MIT License**.
+Project ini dilisensikan di bawah **MIT License**.
 
-See the [LICENSE](./LICENSE) file for details.
+Lihat file [LICENSE](./LICENSE) untuk detail lengkapnya.
+
+---
+
+<div align="center">
+
+<sub>Made with ❤️ by <a href="https://github.com/NaufalKhalil">Naufal Khalil ID</a></sub>
+
+<br>
+
+<a href="#-naulex-translate">⬆ Kembali ke atas</a>
+
+</div>
