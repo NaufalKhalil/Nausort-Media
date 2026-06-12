@@ -1,10 +1,3 @@
-// ============================================================
-//  Nausort v2.0 — Frontend Script
-//  Fixes in this version:
-//   - Delete category actually works (callback timing fixed)
-//   - Color picker Cancel/Apply buttons fixed (no form/bubbling)
-//   - All UI text in English
-// ============================================================
 'use strict';
 
 // ── State ──────────────────────────────────────────────────
@@ -315,12 +308,6 @@ function ctxChangeShortcut() {
   });
 }
 
-// ── DELETE CATEGORY — ROOT CAUSE FIX ──────────────────────
-// Bug: showConfirmModal sets _modalCallback, then ctxDelete immediately
-// calls hideCtxMenu which triggers a 'click' event on document that closes
-// the modal via closeModal() before the user can press Delete.
-// Fix: wrap the confirm open in setTimeout(0) so the ctxMenu click event
-// fully finishes propagating before the modal appears.
 function ctxDelete() {
   const index = _ctxIndex;
   const name  = S.ctxTarget?.name || 'this category';
@@ -412,8 +399,6 @@ function buildColorPalette() {
   }));
 }
 
-// Bind the static Cancel / Apply buttons in the color picker HTML
-// using addEventListener instead of onclick so stopPropagation works.
 function bindColorPickerButtons() {
   const cancelBtn = document.getElementById('colorCancelBtn');
   const applyBtn  = document.getElementById('colorApplyBtn');

@@ -411,7 +411,7 @@ def main():
 
     def on_loaded():
         time.sleep(0.4)
-        _log("[INFO] Nausort Media v2.0")
+        _log("[INFO] Nausort Media v1.0")
         time.sleep(0.1)
         _log("[INFO] Created by Naufal Khalil 🇮🇩")
         time.sleep(0.1)

@@ -1,11 +1,3 @@
-/* ═══════════════════════════════════════════════════════
-   Photo Sorter — Style Sheet
-   Aesthetic: Dark Terminal / Hacker Minimal
-   (identik dengan Naulex Translate)
-   Font: JetBrains Mono
-   Accent: #FF6600 (orange)
-═══════════════════════════════════════════════════════ */
-
 /* ── Reset & Root ─────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
