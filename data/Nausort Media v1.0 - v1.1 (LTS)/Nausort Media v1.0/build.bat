@@ -1,36 +1,73 @@
-@echo off
-:: ============================================================
-::  Nausort Media v2.0 — One-click build to .exe
-::  Requirements: pip install pyinstaller pywebview Pillow
-:: ============================================================
+# ============================================================
+#  Nausort Media v1.0 — PyInstaller build spec
+# ============================================================
 
-echo.
-echo  ============================
-echo   Nausort Media — Building .exe
-echo  ============================
-echo.
+import os
 
-:: Install build dependencies
-echo [1/3] Installing dependencies...
-pip install pyinstaller pywebview Pillow --quiet
+block_cipher = None
 
-:: Clean previous build
-echo [2/3] Cleaning previous build...
-if exist dist\Nausort Media rmdir /s /q dist\Nausort Media
-if exist build       rmdir /s /q build
+APP_NAME = "Nausort Media v1.0"
 
-:: Run PyInstaller
-echo [3/3] Running PyInstaller...
-pyinstaller build.spec --noconfirm
+# ============================================================
+# Collect UI files
+# ============================================================
+ui_datas = []
+for root, dirs, files in os.walk('ui'):
+    for f in files:
+        src = os.path.join(root, f)
+        dest = root.replace('\\', '/')
+        ui_datas.append((src, dest))
 
-echo.
-if exist dist\Nausort Media\Nausort Media.exe (
-    echo  [OK] Build successful!
-    echo  Output: dist\Nausort Media\Nausort Media.exe
-    echo.
-    echo  To distribute: copy the entire dist\Nausort Media\ folder.
-) else (
-    echo  [ERROR] Build failed. Check output above for errors.
+# ============================================================
+# Analysis
+# ============================================================
+a = Analysis(
+    ['main.py'],
+    pathex=['.'],
+    binaries=[],
+    datas=ui_datas,
+    hiddenimports=[
+        'webview',
+        'webview.platforms.winforms',
+        'webview.platforms.cocoa',
+        'webview.platforms.gtk',
+        'PIL',
+        'PIL.Image',
+        'PIL._imaging',
+        'clr',
+    ],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    cipher=block_cipher,
 )
-echo.
-pause
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+# ============================================================
+# EXE (nama file .exe)
+# ============================================================
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name=APP_NAME,          # 👉 Nausort Media v1.0.exe
+    debug=False,
+    console=False,
+    icon='ui/assets/icon.ico' if os.path.exists('ui/assets/icon.ico') else None,
+)
+
+# ============================================================
+# COLLECT (folder output)
+# ============================================================
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    name=APP_NAME,          # 👉 folder dist\Nausort Media v1.0\
+)
