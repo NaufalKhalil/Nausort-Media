@@ -1,16 +1,15 @@
 """
 Nausort Media Prototype v0.3
 
-=> Updates v0.3:
-- Added colored terminal logging for application activity
-- Implemented undo/redo for file operations (move/restore)
-- Threading support for file processing without blocking the UI
-- Improved configuration management and category storage
-- Optimized image thumbnail generation and caching
-- Enhanced error handling and user notifications
-- Added keyboard shortcuts system for quick category access
-- UI/UX refinements: color scheme, visual feedback, and custom buttons
-- General performance and stability improvements
+=> Added:
+- Expanded customization options.
+- Improved category configuration tools.
+- Better shortcut management.
+- Additional interface refinements.
+
+=> Fixed:
+- Various UI bugs.
+- Minor sorting issues.
 """
 
 

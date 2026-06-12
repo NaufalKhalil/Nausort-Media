@@ -1,8 +1,19 @@
-# ============================================================
-#  Nausort Media v2.0 — PyWebView Desktop App
-#  Backend: Python  |  Frontend: HTML/CSS/JS via pywebview
-#  Data stored in: C:\Users\<user>\Documents\Nausort Media\
-# ============================================================
+"""
+Nausort Media Prototype v1.0
+
+=> Updates v1.0:
+- Auto-install required dependencies (pywebview, Pillow) if missing
+- Added cross-platform data folder support in Documents
+- Added persistent settings via JSON configuration file
+- Added default category structure and folder/color/shortcut support
+- Added app logo/icon support
+- Added support for multiple image formats (jpg, jpeg, png, webp, bmp, gif)
+- Completely redesigned modern UI
+- Improved scanning performance
+- Enhanced folder management
+- Improved activity logging
+- Better responsiveness and usability
+"""
 
 # ── Auto-install ──────────────────────────────────────────
 import subprocess, sys
@@ -403,6 +414,8 @@ def main():
         _log("[INFO] Nausort Media v2.0")
         time.sleep(0.1)
         _log("[INFO] Created by Naufal Khalil 🇮🇩")
+        time.sleep(0.1)
+        _log("[INFO] UI updated for app update list")
         time.sleep(0.1)
         _log(f"[INFO] Data folder: {DATA_DIR}")
         time.sleep(0.1)

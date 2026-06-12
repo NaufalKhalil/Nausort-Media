@@ -1,13 +1,14 @@
 """
 Nausort Media Prototype v0.1
 
-=> Features v0.1:
-- Manage and categorize image files.
-- Load source folder containing images.
-- View thumbnails and preview images.
-- Categorize or move images to destination folder based on specified categories.
-- Provide category configuration and support for common image formats.
-- Provide a simple interface for navigation and color/shortcut category settings.
+=> Added:
+- Image file management and categorization system.
+- Source folder selection for image collections.
+- Image thumbnail and preview support.
+- Category-based image sorting and moving.
+- Basic category configuration system.
+- Support for common image formats.
+- Navigation shortcuts and color customization for categories.
 """
 
 

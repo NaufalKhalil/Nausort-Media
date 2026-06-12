@@ -1,12 +1,21 @@
 """
 Nausort Media Prototype v0.5
 
-=> Updates v0.5:
-- Added configuration support with category names, folders, colors, and shortcuts
-- Added palette loading from JSON with fallback default palette
-- Added support for more image formats (.webp, .bmp, .gif)
-- Added custom UI theme constants and button radius styling
-- Added Pillow auto-install fallback for missing dependency
+=> Added:
+- Configuration file support for:
+    - Category names
+    - Destination folders
+    - Category colors
+    - Keyboard shortcuts
+- JSON-based palette loading system.
+- Automatic fallback to default palettes.
+- Support for additional image formats: WebP, BMP, GIF.
+- Automatic Pillow installation if dependency is missing.
+
+=> Changed:
+- Introduced centralized UI theme constants.
+- Added customizable button radius styling.
+- Improved application configuration management.
 """
 
 import tkinter as tk

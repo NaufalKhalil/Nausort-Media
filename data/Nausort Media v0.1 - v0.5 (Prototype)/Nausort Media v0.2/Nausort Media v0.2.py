@@ -1,15 +1,16 @@
 """
 Nausort Media Prototype v0.2
 
-=> Updates v0.2:
-- Enhanced UI/UX with improved color scheme and visual feedback
-- Added terminal-style logging system with colored output
-- Implemented undo/redo functionality for file operations
-- Added threading support for smooth file processing
-- Improved configuration management
-- Better error handling and user notifications
-- Optimized image thumbnail generation and caching
-- Added keyboard shortcut system for quick category access
+=> Added:
+- Improved user interface and workflow.
+- Better image navigation experience.
+- Enhanced category management system.
+- Improved image preview handling.
+- Stability and performance improvements.
+
+=> Changed:
+- Refined sorting workflow.
+- Optimized image loading process.
 """
 
 

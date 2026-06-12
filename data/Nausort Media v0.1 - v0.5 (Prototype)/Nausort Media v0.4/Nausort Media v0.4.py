@@ -1,17 +1,19 @@
 """
 Nausort Media Prototype v0.4
 
-=> Updates v0.4:
-ColorPickerDialog changed from DarkDialog to tk.Toplevel.
-Simple SWATCHES replaced with PALETTES containing: Dark, Vibrant, Pastel, Neon.
-Added palette selection with radio buttons.
-Added dynamic swatch grid.
-Added color preview.
-Added HEX input for direct color selection.
-Added RGB sliders.
-Added brightness slider.
-Added Cancel and Apply buttons.
-Header added at the beginning of the file with placeholder.
+=> Added:
+- Advanced Color Picker system.
+- Multiple color palettes: Dark, Vibrant, Pastel, Neon.
+- Dynamic color swatch grid.
+- Live color preview.
+- HEX color input support.
+- RGB color sliders.
+- Brightness adjustment slider.
+- Apply and Cancel actions for color selection.
+
+=> Changed:
+- Replaced simple color swatches with a full palette system.
+- Reworked ColorPickerDialog architecture using tk.Toplevel.
 """
 
 
