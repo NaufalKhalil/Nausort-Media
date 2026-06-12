@@ -135,7 +135,7 @@ Useful for :
 
 ## 🖼️ Preview
 
-<img src="./data/design/preview apps/preview1.png" width="">
+<img src="./data/design/preview apps/preview_apps_1.png" width="">
 
 ---
 
