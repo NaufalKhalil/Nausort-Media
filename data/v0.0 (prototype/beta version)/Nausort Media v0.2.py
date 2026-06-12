@@ -1,15 +1,16 @@
 """
-Nausort Media Prototype v0.1
+Nausort Media Prototype v0.2
 
-=> Features:
-- Manage and categorize image files.
-- Load source folder containing images.
-- View thumbnails and preview images.
-- Categorize or move images to destination folder based on specified categories.
-- Provide category configuration and support for common image formats.
-- Provide a simple interface for navigation and color/shortcut category settings.
+=> Updates v0.2 vs v0.1:
+- Enhanced UI/UX with improved color scheme and visual feedback
+- Added terminal-style logging system with colored output
+- Implemented undo/redo functionality for file operations
+- Added threading support for smooth file processing
+- Improved configuration management
+- Better error handling and user notifications
+- Optimized image thumbnail generation and caching
+- Added keyboard shortcut system for quick category access
 """
-
 
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -61,11 +62,6 @@ DEFAULT_CONFIG = {
 # ROUNDED BUTTON  (Canvas-based, no ttk needed)
 # ─────────────────────────────────────────────────────────────
 class RoundedButton(tk.Frame):
-    """
-    Stable button widget using tk.Frame + tk.Label.
-    Works on all Python/Tk versions including 3.14.
-    Appearance: flat dark style that matches the app theme.
-    """
 
     def __init__(self, parent, text="", command=None,
                  bg=BG2, fg=TEXT, hover_bg=BG3,
@@ -147,7 +143,6 @@ class RoundedButton(tk.Frame):
 # DARK DIALOG  (custom Toplevel)
 # ─────────────────────────────────────────────────────────────
 class DarkDialog(tk.Toplevel):
-    """Base class for custom dark dialogs."""
 
     def __init__(self, parent, title="Dialog", width=320, height=160):
         super().__init__(parent)
