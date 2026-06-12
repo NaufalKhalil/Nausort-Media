@@ -1,5 +1,12 @@
 """
 Nausort Media Prototype v0.5
+
+=> Updates v0.5:
+- Added configuration support with category names, folders, colors, and shortcuts
+- Added palette loading from JSON with fallback default palette
+- Added support for more image formats (.webp, .bmp, .gif)
+- Added custom UI theme constants and button radius styling
+- Added Pillow auto-install fallback for missing dependency
 """
 
 import tkinter as tk
@@ -16,7 +23,7 @@ except ImportError:
 # ─────────────────────────────────────────────────────────────
 # CONSTANTS
 # ─────────────────────────────────────────────────────────────
-CONFIG_FILE      = "photo_sorter_config.json"
+CONFIG_FILE      = "Nausort_Media_config.json"
 SUPPORTED_EXTS   = (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif")
 
 BG          = "#1c1c1e"
@@ -42,8 +49,8 @@ RADIUS      = 10   # corner radius for custom buttons
 
 DEFAULT_CONFIG = {
     "categories": [
-        {"name": "Kenangan 1", "folder": "", "color": "#2c2c2e", "shortcut": ""},
-        {"name": "Kenangan 2", "folder": "", "color": "#2c2c2e", "shortcut": ""},
+        {"name": "Category 1", "folder": "", "color": "#2d2d2d", "shortcut": "1"},
+        {"name": "Category 2", "folder": "", "color": "#2d2d2d", "shortcut": "2"},
     ]
 }
 
@@ -75,11 +82,6 @@ def _load_palette():
 # ROUNDED BUTTON  (Canvas-based, no ttk needed)
 # ─────────────────────────────────────────────────────────────
 class RoundedButton(tk.Frame):
-    """
-    Stable button widget using tk.Frame + tk.Label.
-    Works on all Python/Tk versions including 3.14.
-    Appearance: flat dark style that matches the app theme.
-    """
 
     def __init__(self, parent, text="", command=None,
                  bg=BG2, fg=TEXT, hover_bg=BG3,
@@ -161,7 +163,6 @@ class RoundedButton(tk.Frame):
 # DARK DIALOG  (custom Toplevel)
 # ─────────────────────────────────────────────────────────────
 class DarkDialog(tk.Toplevel):
-    """Base class for custom dark dialogs."""
 
     def __init__(self, parent, title="Dialog", width=320, height=160):
         super().__init__(parent)
@@ -225,7 +226,7 @@ class AskStringDialog(DarkDialog):
 
         row = tk.Frame(self, bg=BG2)
         row.pack(fill=tk.X, padx=20, pady=(0, 16))
-        self._btn(row, "Batal",  self.destroy).pack(side=tk.RIGHT, padx=(6, 0))
+        self._btn(row, "Cancel",  self.destroy).pack(side=tk.RIGHT, padx=(6, 0))
         self._btn(row, "OK",     self._ok).pack(side=tk.RIGHT)
 
     def _ok(self):
@@ -243,7 +244,7 @@ class ColorPickerDialog(tk.Toplevel):
         self._picked   = initial
         self._updating = False
 
-        self.title("Pilih Warna")
+        self.title("Pick Color")
         self.configure(bg=BG2)
         self.resizable(False, False)
         self.transient(parent)
@@ -261,7 +262,7 @@ class ColorPickerDialog(tk.Toplevel):
 
     def _build(self):
         # ── Header ──
-        tk.Label(self, text="Pilih Warna Tombol", bg=BG2, fg=TEXT,
+        tk.Label(self, text="Pick Button Color", bg=BG2, fg=TEXT,
                  font=("Segoe UI", 11, "bold")).pack(padx=20, pady=(14, 0), anchor="w")
 
         # ── Palette grid 12 x 5 ──
@@ -333,11 +334,11 @@ class ColorPickerDialog(tk.Toplevel):
         # ── Buttons — both same neutral color ──
         btn_row = tk.Frame(self, bg=BG2)
         btn_row.pack(fill=tk.X, padx=20, pady=(14, 16))
-        RoundedButton(btn_row, text="Batal", command=self.destroy,
+        RoundedButton(btn_row, text="Cancel", command=self.destroy,
                       bg=BG3, fg=TEXT, hover_bg=BG4,
                       font=("Segoe UI", 10), padx=18, pady=7
                       ).pack(side=tk.RIGHT, padx=(6, 0))
-        RoundedButton(btn_row, text="Pakai", command=self._ok,
+        RoundedButton(btn_row, text="Apply", command=self._ok,
                       bg=BG3, fg=TEXT, hover_bg=BG4,
                       font=("Segoe UI", 10), padx=18, pady=7
                       ).pack(side=tk.RIGHT)
@@ -421,7 +422,6 @@ class DarkMenu(tk.Menu):
 # WRAP FRAME  (auto-wrapping container)
 # ─────────────────────────────────────────────────────────────
 class WrapFrame(tk.Frame):
-    """Children pack left and wrap to next row when width is exceeded."""
 
     def __init__(self, parent, **kw):
         super().__init__(parent, **kw)
@@ -474,7 +474,7 @@ class PhotoSorterApp:
 
     def __init__(self, root):
         self.root = root
-        self.root.title("Photo Sorter")
+        self.root.title("Nausort Media")
         self.root.configure(bg=BG)
         self.root.geometry("1200x760")
         self.root.minsize(860, 580)
@@ -506,8 +506,8 @@ class PhotoSorterApp:
         self._apply_config()
         self._bind_shortcuts()
 
-        self.log("Program jalan...", tag="info")
-        self.log("Tekan angka untuk shortcut tombol", tag="info")
+        self.log("Program running...", tag="info")
+        self.log("Press number keys for button shortcuts", tag="info")
         self.log("─" * 36, tag="dim")
 
     # ──────────────────────────────────────────
@@ -669,7 +669,7 @@ class PhotoSorterApp:
     # CUSTOM DARK SCROLLBAR
     # ──────────────────────────────────────────
     def _custom_sb_set(self, first, last):
-        """Called by canvas yscrollcommand — update custom thumb position."""
+
         try:
             first, last = float(first), float(last)
             h = self._sb_track.winfo_height()
@@ -718,7 +718,6 @@ class PhotoSorterApp:
     def _make_full_btn(self, parent, text, command,
                        bg=BG2, hover_bg=BG3, fg=TEXT,
                        font=("Segoe UI", 10)):
-        """A stretched tk.Button (rounded corners via relief flat)."""
         btn = tk.Button(parent, text=text, command=command,
                         bg=bg, fg=fg, font=font,
                         activebackground=hover_bg, activeforeground=TEXT,
@@ -761,7 +760,7 @@ class PhotoSorterApp:
     # ──────────────────────────────────────────
     # CATEGORY WIDGET
     # ──────────────────────────────────────────
-    def _add_category_widget(self, name="Kategori Baru", folder="",
+    def _add_category_widget(self, name="New Category", folder="",
                               color=BG2, shortcut=""):
         cat_btn   = RoundedButton(
             self.cat_wrap, text=name, bg=color,
@@ -810,7 +809,7 @@ class PhotoSorterApp:
             menu.add_command(label=f"📁  {short} ↗",
                              command=lambda: self._open_folder_in_explorer(folder_info))
             menu.add_separator()
-        menu.add_command(label="Set Folder Tujuan",  command=lambda: self._choose_folder(w))
+        menu.add_command(label="Set Destination Folder",  command=lambda: self._choose_folder(w))
         menu.add_separator()
         menu.add_command(label="Rename",             command=lambda: self._rename(w))
         menu.add_command(label="Change Color",       command=lambda: self._change_color(w))
@@ -830,10 +829,10 @@ class PhotoSorterApp:
             else:
                 subprocess.Popen(["xdg-open", folder])
         except Exception as e:
-            self.log(f"[WARN] Gagal buka folder: {e}", tag="warn")
+            self.log(f"[WARN] Failed to open folder: {e}", tag="warn")
 
     def _rename(self, w):
-        d = AskStringDialog(self.root, "Rename", "Nama kategori baru:", w["name"])
+        d = AskStringDialog(self.root, "Rename", "New category name:", w["name"])
         if d.result and d.result.strip():
             w["name"] = d.result.strip()
             self._update_cat_btn(w)
@@ -847,7 +846,7 @@ class PhotoSorterApp:
             self._save_config()
 
     def _change_shortcut(self, w):
-        d = AskStringDialog(self.root, "Shortcut", "Shortcut baru (1 karakter):",
+        d = AskStringDialog(self.root, "Shortcut", "New shortcut (1 character):",
                             w.get("shortcut", ""))
         if d.result is not None:
             w["shortcut"] = d.result.strip()[:1].upper() if d.result.strip() else ""
@@ -856,14 +855,14 @@ class PhotoSorterApp:
             self._bind_shortcuts()
 
     def _delete_cat(self, w):
-        if messagebox.askyesno("Hapus", f"Hapus kategori '{w['name']}'?",
+        if messagebox.askyesno("Delete", f"Delete category '{w['name']}'?",
                                parent=self.root):
             self.category_widgets.remove(w)
             self.cat_wrap.remove(w["cat_btn"])
             self._save_config()
 
     def _add_category(self):
-        self._add_category_widget(name=f"Kategori {len(self.category_widgets)+1}", shortcut="")
+        self._add_category_widget(name=f"Category {len(self.category_widgets)+1}", shortcut="")
         self._bind_shortcuts()
 
     def _choose_folder(self, w):
@@ -891,9 +890,9 @@ class PhotoSorterApp:
         self.history.clear()
         self.redo_stack.clear()
         total = len(self.photo_list)
-        self.total_label.configure(text=f"Total Foto: {total}")
-        self.log(f"[INFO] Import folder berhasil: {folder}", tag="info")
-        self.log(f"[INFO] {total} foto ditemukan", tag="info")
+        self.total_label.configure(text=f"Total Photos: {total}")
+        self.log(f"[INFO] Folder imported successfully: {folder}", tag="info")
+        self.log(f"[INFO] {total} photos found", tag="info")
         if self.photo_list:
             self._show_photo()
 
@@ -948,7 +947,7 @@ class PhotoSorterApp:
             cw = self.canvas.winfo_width()  or 400
             ch = self.canvas.winfo_height() or 300
             self.canvas.create_text(cw//2, ch//2,
-                text=f"Gagal memuat foto:\n{e}",
+                text=f"Failed to load image:\n{e}",
                 fill=TEXT_DIM, font=("Segoe UI", 10), justify="center")
 
     def _draw_image(self):
@@ -1032,10 +1031,10 @@ class PhotoSorterApp:
     # ──────────────────────────────────────────
     def _sort_to(self, w):
         if not (0 <= self.current_index < len(self.photo_list)):
-            self.log("[WARN] Tidak ada foto aktif.", tag="warn"); return
+            self.log("[WARN] No active photo.", tag="warn"); return
         if not w["folder"]:
-            messagebox.showwarning("Folder Kosong",
-                f"Pilih folder tujuan untuk '{w['name']}' terlebih dahulu.",
+            messagebox.showwarning("Empty Folder",
+                f"Choose a destination folder for '{w['name']}' first.",
                 parent=self.root); return
 
         src  = self.photo_list[self.current_index]
@@ -1067,16 +1066,16 @@ class PhotoSorterApp:
     # ──────────────────────────────────────────
     def _undo_action(self):
         if not self.history:
-            self.log("[WARN] Tidak ada aksi untuk di-undo.", tag="warn"); return
+            self.log("[WARN] Nothing to undo.", tag="warn"); return
         rec = self.history.pop()
         try:
             os.makedirs(os.path.dirname(rec["src"]), exist_ok=True)
             shutil.move(rec["dst"], rec["src"])
         except Exception as e:
-            self.log(f"[WARN] Undo gagal: {e}", tag="warn")
+            self.log(f"[WARN] Undo failed: {e}", tag="warn")
             self.history.append(rec); return
         self.redo_stack.append(rec)
-        self.log(f"Undo: {rec['filename']} kembali ke folder sumber", tag="undo")
+        self.log(f"Undo: {rec['filename']} moved back to source folder", tag="undo")
         if rec["src"] not in self.photo_list:
             pos = max(0, self.current_index)
             self.photo_list.insert(pos, rec["src"])
@@ -1085,16 +1084,16 @@ class PhotoSorterApp:
 
     def _redo_action(self):
         if not self.redo_stack:
-            self.log("[WARN] Tidak ada aksi untuk di-redo.", tag="warn"); return
+            self.log("[WARN] Nothing to redo.", tag="warn"); return
         rec = self.redo_stack.pop()
         try:
             os.makedirs(os.path.dirname(rec["dst"]), exist_ok=True)
             shutil.move(rec["src"], rec["dst"])
         except Exception as e:
-            self.log(f"[WARN] Redo gagal: {e}", tag="warn")
+            self.log(f"[WARN] Redo failed: {e}", tag="warn")
             self.redo_stack.append(rec); return
         self.history.append(rec)
-        self.log(f"Redo: {rec['filename']} → tujuan", tag="redo")
+        self.log(f"Redo: {rec['filename']} → destination", tag="redo")
         if rec["src"] in self.photo_list:
             self.photo_list.remove(rec["src"])
             if self.current_index >= len(self.photo_list):
@@ -1154,7 +1153,7 @@ class PhotoSorterApp:
 # ─────────────────────────────────────────────────────────────
 def main():
     root = tk.Tk()
-    root.title("Photo Sorter")
+    root.title("Nausort Media")
 
     # Dark title bar (Windows 11)
     try:
