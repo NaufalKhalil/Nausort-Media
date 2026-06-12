@@ -4,7 +4,7 @@
       <img src="./data/design/icon apps/icon.svg" width="120">
     </td>
     <td>
-      <h1>Nausort Media v2.0</h1>
+      <h1>Nausort Media v1.0</h1>
       <p>
         A modern desktop application for organizing, sorting, and managing photo collections with a clean and efficient workflow.
       </p>
@@ -67,7 +67,7 @@ No clutter. No confusion. Just organize.
 
 ---
 
-## 🚀 What's New (v2.0)
+## 🚀 What's New (v1.0)
 
 * ✨ Completely redesigned modern UI
 * ⚡ Improved scanning performance
@@ -96,7 +96,7 @@ Supports popular image formats including:
 
 ### Photo Management
 
-Nausort Media can be used for:
+Nausort Media can be used for :
 
 * Personal photo collections
 * Family albums
@@ -108,7 +108,7 @@ Nausort Media can be used for:
 
 ### Professional Workflow
 
-Useful for:
+Useful for :
 
 * Photographers
 * Graphic designers
