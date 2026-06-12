@@ -1,7 +1,7 @@
 """
 Nausort Media Prototype v0.1
 
-=> Features:
+=> Features v0.1:
 - Manage and categorize image files.
 - Load source folder containing images.
 - View thumbnails and preview images.

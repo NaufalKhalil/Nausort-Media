@@ -1,7 +1,7 @@
 """
 Nausort Media Prototype v0.2
 
-=> Updates v0.2 vs v0.1:
+=> Updates v0.2:
 - Enhanced UI/UX with improved color scheme and visual feedback
 - Added terminal-style logging system with colored output
 - Implemented undo/redo functionality for file operations
