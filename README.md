@@ -12,7 +12,7 @@
   </tr>
 </table>
 
-[![Version](https://img.shields.io/badge/version-2.0-orange?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
+[![Version](https://img.shields.io/badge/version-1.0-orange?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-Windows-blue?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media)
 [![Language](https://img.shields.io/badge/language-Python-yellow?style=flat-square)](https://python.org)
 [![Status](https://img.shields.io/badge/status-Active-success?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media)
