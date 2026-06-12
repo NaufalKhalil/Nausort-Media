@@ -377,6 +377,7 @@ class PhotoSorterApp:
         self._apply_config()
         self._bind_shortcuts()
 
+        self.log("[INFO] Nausort Media v0.2")
         self.log("Program started...", tag="info")
         self.log("Press number keys for shortcuts", tag="info")
         self.log("─" * 36, tag="dim")
