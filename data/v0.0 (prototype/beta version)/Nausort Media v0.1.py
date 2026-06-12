@@ -10,6 +10,7 @@ Nausort Media Prototype v0.1
 - Provide a simple interface for navigation and color/shortcut category settings.
 """
 
+
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, colorchooser, simpledialog
 import os

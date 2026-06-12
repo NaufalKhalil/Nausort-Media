@@ -12,6 +12,7 @@ Nausort Media Prototype v0.2
 - Added keyboard shortcut system for quick category access
 """
 
+
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os, shutil, json, threading, time

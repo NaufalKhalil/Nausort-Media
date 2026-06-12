@@ -13,6 +13,7 @@ Nausort Media Prototype v0.3
 - General performance and stability improvements
 """
 
+
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os, shutil, json, threading, time
