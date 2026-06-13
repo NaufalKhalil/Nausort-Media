@@ -1,7 +1,7 @@
 <table>
   <tr>
     <td width="" align="left">
-      <img src="./data/design/icon apps/icon.svg" width="120">
+      <img src="./data/design/icon apps/Nausort.svg" width="120">
     </td>
     <td>
       <h1>Nausort Media v1.0</h1>
