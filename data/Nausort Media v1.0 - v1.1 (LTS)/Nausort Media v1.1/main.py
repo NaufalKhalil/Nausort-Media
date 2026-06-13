@@ -1,7 +1,7 @@
 """
-Nausort Media Prototype v1.0
+Nausort Media Prototype v1.1
 
-=> Updates v1.0:
+=> Updates :
 - Auto-install required dependencies (pywebview, Pillow) if missing
 - Added cross-platform data folder support in Documents
 - Added persistent settings via JSON configuration file
@@ -566,7 +566,7 @@ def main():
 
     def on_loaded():
         time.sleep(0.4)
-        _log("[INFO] Nausort Media v1.0")
+        _log("[INFO] Nausort Media v1.1")
         time.sleep(0.1)
         _log("[INFO] Created by Naufal Khalil 🇮🇩")
         time.sleep(0.1)
