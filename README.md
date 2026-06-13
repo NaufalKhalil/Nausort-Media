@@ -228,7 +228,7 @@ Designed for a faster workflow:
 
 ---
 
-## 👨‍💻 Developer
+## 👨‍💻 Developer/Contributor
 
 <div align="left">
   <table>
