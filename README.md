@@ -236,7 +236,7 @@ Designed for a faster workflow:
       <td align="center">
         <a href="https://github.com/NaufalKhalil">
           <img src="https://github.com/NaufalKhalil.png" width="80" style="border-radius:50%" alt="Naufal Khalil"><br>
-          <strong>Naufal Khalil ID</strong>
+          <strong>Naufal Khalil</strong>
         </a><br>
         <sub>Creator & Developer</sub>
       </td>
