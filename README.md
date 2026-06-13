@@ -4,7 +4,7 @@
       <img src="./data/design/icon apps/Nausort.svg" width="120">
     </td>
     <td>
-      <h1>Nausort Media v1.1</h1>
+      <h1>Nausort Media</h1>
       <p>
         A modern desktop application for organizing, sorting, and managing photo collections with improved workflow, stability, and performance.
       </p>
