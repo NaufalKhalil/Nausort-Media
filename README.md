@@ -224,7 +224,7 @@ Designed for a faster workflow:
 
 ### 🚀 Get the Latest Version
 
-[![Download](https://img.shields.io/badge/Download-Nausort%20Media%20v2.0-blue?style=for-the-badge\&logo=windows)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
+[![Download](https://img.shields.io/badge/Download-Nausort%20Media%20v1.0-blue?style=for-the-badge\&logo=windows)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
 
 ---
 
