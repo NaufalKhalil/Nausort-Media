@@ -1,18 +1,30 @@
 """
 Nausort Media Prototype v1.1
 
-=> Updates :
-- Auto-install required dependencies (pywebview, Pillow) if missing
-- Added cross-platform data folder support in Documents
-- Added persistent settings via JSON configuration file
-- Added default category structure and folder/color/shortcut support
-- Added app logo/icon support
-- Added support for multiple image formats (jpg, jpeg, png, webp, bmp, gif)
-- Completely redesigned modern UI
-- Improved scanning performance
-- Enhanced folder management
-- Improved activity logging
-- Better responsiveness and usability
+=> Updates v1.1:
+- Fixed keyboard shortcut key repeat issue (holding shortcut no longer triggers multiple sorting)
+- Added shortcut debounce / key lock protection
+- Added shortcut conflict prevention (one shortcut only for one category)
+- Improved keyboard shortcut handling while typing in input fields
+- Added last imported folder memory
+- Import dialog now opens to previous import location
+- First import now starts from This PC location
+- Improved duplicate file handling
+- Added Replace / Cancel / Keep Both option for duplicate filenames
+- Added automatic duplicate filename numbering (photo (1), photo (2), etc.)
+- Improved undo/redo file restoration
+- Added original file position tracking for undo system
+- Improved corrupted image handling
+- Added image loading error notification and skip handling
+- Optimized image cache management
+- Added cache limit and cleanup for better RAM usage
+- Improved settings recovery system
+- Added config backup and restore handling
+- Improved file operation safety during sorting
+- Added protection against interrupted file moves
+- Improved application stability
+- Improved EXE distribution compatibility
+- Reduced antivirus false positive risk
 """
 
 # ── Auto-install ──────────────────────────────────────────

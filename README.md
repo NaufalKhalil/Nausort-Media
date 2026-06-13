@@ -4,23 +4,19 @@
       <img src="./data/design/icon apps/Nausort.svg" width="120">
     </td>
     <td>
-      <h1>Nausort Media v1.0</h1>
+      <h1>Nausort Media v1.1</h1>
       <p>
-        A modern desktop application for organizing, sorting, and managing photo collections with a clean and efficient workflow.
+        A modern desktop application for organizing, sorting, and managing photo collections with improved workflow, stability, and performance.
       </p>
     </td>
   </tr>
 </table>
 
-[![Version](https://img.shields.io/badge/version-1.0-orange?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
+[![Version](https://img.shields.io/badge/version-1.1-orange?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-Windows-blue?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media)
 [![Language](https://img.shields.io/badge/language-Python-yellow?style=flat-square)](https://python.org)
 [![Status](https://img.shields.io/badge/status-Active-success?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)](./LICENSE)
-
-</td>
-</tr>
-</table>
 
 ---
 
@@ -28,7 +24,7 @@
 
 * [About](#about)
 * [Features](#-features)
-* [What's New](#-whats-new-v20)
+* [What's New](#-whats-new-v11)
 * [Supported Formats](#-supported-formats)
 * [Use Cases](#-use-cases)
 * [Comparison](#-comparison)
@@ -60,20 +56,53 @@ No clutter. No confusion. Just organize.
 * 🖼️ Multi-Format Image Support
 * ⚡ Fast Folder Scanning
 * 🔍 Quick Image Discovery
-* ⭐ Favorites System
+* 🎯 Keyboard Shortcut Sorting
+* 📂 Category Based Workflow
+* ↩️ Undo / Redo System
 * 📋 Activity Log
-* 🎯 Simple Workflow
+* 💾 Persistent Settings
+* ⭐ Favorites System
 * 🌙 Modern Dark UI
 
 ---
 
-## 🚀 What's New (v1.0)
+## 🚀 What's New (v1.1)
 
-* ✨ Completely redesigned modern UI
-* ⚡ Improved scanning performance
-* 📂 Enhanced folder management
-* 📋 Improved activity logging
-* 🎯 Better responsiveness and usability
+### 🐞 Bug Fixes
+
+* Fixed keyboard shortcut key repeat issue
+* Fixed shortcut being triggered multiple times when holding a key
+* Fixed duplicate shortcut assignment between categories
+* Fixed shortcut triggering while typing in input fields
+* Improved file operation safety during sorting
+* Improved image loading error handling
+* Improved application stability
+
+### ⚡ Improvements
+
+* Added shortcut debounce protection
+* Added shortcut conflict prevention
+* Added last imported folder memory
+* Import dialog now remembers previous folder
+* First import now starts from This PC location
+* Improved Undo / Redo restoration system
+* Added better duplicate filename handling
+* Added safer file moving process
+* Optimized image cache performance
+* Improved RAM usage when handling many images
+* Improved configuration recovery system
+
+### 📂 File Handling
+
+* Added duplicate file handling options:
+  * Replace existing file
+  * Cancel operation
+  * Keep both files
+
+* Automatic duplicate naming:
+  * photo.jpg
+  * photo (1).jpg
+  * photo (2).jpg
 
 ---
 
@@ -96,7 +125,7 @@ Supports popular image formats including:
 
 ### Photo Management
 
-Nausort Media can be used for :
+Nausort Media can be used for:
 
 * Personal photo collections
 * Family albums
@@ -108,7 +137,7 @@ Nausort Media can be used for :
 
 ### Professional Workflow
 
-Useful for :
+Useful for:
 
 * Photographers
 * Graphic designers
@@ -122,14 +151,17 @@ Useful for :
 
 ## 🆚 Comparison
 
-| Feature                    | Nausort Media | Traditional File Explorer |
-| -------------------------- | ------------- | ------------------------- |
-| 🎨 Modern UI               | ✅ Yes         | ❌ No                      |
-| ⚡ Fast Image Scanning      | ✅ Yes         | ⚠️ Limited                |
-| 📂 Photo Organization      | ✅ Yes         | ⚠️ Basic                  |
-| 📋 Activity Log            | ✅ Yes         | ❌ No                      |
-| ⭐ Favorites System         | ✅ Yes         | ❌ No                      |
-| 🖱️ User-Friendly Workflow | ✅ Yes         | ⚠️ Basic                  |
+| Feature                    | Nausort Media v1.1 | Traditional File Explorer |
+| -------------------------- | ------------------ | ------------------------- |
+| 🎨 Modern UI               | ✅ Yes              | ❌ No                      |
+| ⚡ Fast Image Scanning      | ✅ Yes              | ⚠️ Limited                |
+| 📂 Photo Organization      | ✅ Yes              | ⚠️ Basic                  |
+| 🎯 Shortcut Sorting        | ✅ Yes              | ❌ No                      |
+| ↩️ Undo / Redo             | ✅ Yes              | ❌ No                      |
+| 📋 Activity Log            | ✅ Yes              | ❌ No                      |
+| 💾 Settings Memory         | ✅ Yes              | ❌ No                      |
+| ⭐ Favorites System         | ✅ Yes              | ❌ No                      |
+| 🖱️ Easy Workflow           | ✅ Yes              | ⚠️ Basic                  |
 
 ---
 
@@ -142,10 +174,11 @@ Useful for :
 ## ⚙️ What's it built with?
 
 * Python (Desktop App)
-* Custom UI (Dark Theme)
-* Image Management System
+* Custom UI System
+* Image Processing Engine
 * Event-driven Architecture
-* High-performance File Processing
+* File Management System
+* Persistent Configuration System
 
 ---
 
@@ -159,11 +192,12 @@ Useful for :
 ### Quick Start
 
 1. Download the latest release:
-   https://github.com/NaufalKhalil/Nausort-Media/releases/latest
+
+https://github.com/NaufalKhalil/Nausort-Media/releases/latest
 
 2. Extract the `.zip` file
 
-3. Run `Nausort-Media.exe`
+3. Run: `Nausort-Media.exe`
 
 4. Start organizing your photos 🚀
 
@@ -175,16 +209,39 @@ Useful for :
 
 Open the `.exe` file to start Nausort Media.
 
+---
+
 ### Select a Folder
 
 * Choose a folder containing images
-* The application will scan supported files automatically
+* The application scans supported files automatically
+* The last imported folder will be remembered
+
+---
 
 ### Organize Your Collection
 
 * Browse image collections
-* Sort and manage files efficiently
-* Keep folders structured and organized
+* Create categories
+* Assign category folders
+* Sort photos quickly
+* Keep folders structured
+
+---
+
+### Quick Sorting
+
+Use keyboard shortcuts for faster workflow.
+
+Example :
+
+* M → Move to Meme folder
+* A → Move to Anime folder
+* S → Move to Screenshot folder
+
+Shortcut protection prevents accidental repeated sorting.
+
+---
 
 ### Monitor Activity
 
@@ -192,6 +249,7 @@ Use the built-in activity panel to view:
 
 * Scan progress
 * File operations
+* Sorting history
 * System messages
 * Processing information
 
@@ -202,9 +260,10 @@ Use the built-in activity panel to view:
 Designed for a faster workflow:
 
 * 📂 Manage large photo collections easily
-* ⭐ Keep important folders accessible
+* 🎯 Sort images using categories
+* ⌨️ Fast keyboard workflow
+* ↩️ Restore previous actions
 * ⚡ Faster navigation through image libraries
-* 🎯 Built for productivity and organization
 
 > Built for efficiency. Designed for simplicity.
 
@@ -216,7 +275,8 @@ Designed for a faster workflow:
 * **Custom UI Framework** — Interface system
 * **Dark UI Design** — Modern appearance
 * **Event-driven Architecture** — Responsive performance
-* **Image Processing Engine** — Fast and efficient file handling
+* **Image Processing Engine** — Fast image handling
+* **JSON Configuration System** — User settings storage
 
 ---
 
@@ -224,7 +284,7 @@ Designed for a faster workflow:
 
 ### 🚀 Get the Latest Version
 
-[![Download](https://img.shields.io/badge/Download-Nausort%20Media%20v1.0-blue?style=for-the-badge\&logo=windows)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
+[![Download](https://img.shields.io/badge/Download-Nausort%20Media%20v1.1-blue?style=for-the-badge\&logo=windows)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
 
 ---
 
@@ -271,3 +331,4 @@ Your support helps this project grow 🚀
 This project is licensed under the **MIT License**.
 
 See the [LICENSE](./LICENSE) file for details.
+
