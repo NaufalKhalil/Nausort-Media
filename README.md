@@ -12,7 +12,7 @@
   </tr>
 </table>
 
-[![Version](https://img.shields.io/badge/version-1.1-orange?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
+[![Version](https://img.shields.io/badge/version-1.2-orange?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-Windows-blue?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media)
 [![Language](https://img.shields.io/badge/language-Python-yellow?style=flat-square)](https://python.org)
 [![Status](https://img.shields.io/badge/status-Active-success?style=flat-square)](https://github.com/NaufalKhalil/Nausort-Media)
@@ -24,7 +24,7 @@
 
 * [About](#about)
 * [Features](#-features)
-* [What's New](#-whats-new-v11)
+* [What's New](#-whats-new-v12)
 * [Supported Formats](#-supported-formats)
 * [Use Cases](#-use-cases)
 * [Comparison](#-comparison)
@@ -66,9 +66,33 @@ No clutter. No confusion. Just organize.
 
 ---
 
-## 🚀 What's New (v1.1)
+## 🚀 What's New (v1.2)
 
-### 🐞 Bug Fixes
+### 🐞 Critical Bug Fixes
+
+* Fixed Undo not restoring files to their original position in the photo list
+* Fixed Undo and Redo being triggered simultaneously via keyboard shortcut and UI button
+* Fixed Ctrl+Z and Ctrl+Y firing multiple times when the key is held down
+* Fixed Redo not handling filename conflicts, which could cause the operation to silently fail
+* Fixed sorting into the same folder as the source file (src == dst)
+
+### ⚡ Stability & Performance
+
+* Replaced multiple concurrent preload threads with a single daemon worker and queue system
+* Added import session ID to automatically cancel stale preload jobs when a new folder is imported
+* Corrupt files in a sequence are now auto-skipped without requiring repeated user interaction
+* Category shortcuts and Undo/Redo are now no-ops when no photos are loaded
+* Rename category no longer writes to disk when the name has not changed
+* A warning is now logged when a missing destination folder is recreated automatically
+* Windows MAX\_PATH (260 characters) is validated before each file move to prevent silent failures
+* Auto-install of pip packages is skipped when running as a compiled EXE to reduce startup time and antivirus false positives
+
+### 🔁 Previous Updates (v1.1)
+
+<details>
+<summary>Show v1.1 changelog</summary>
+
+#### Bug Fixes
 
 * Fixed keyboard shortcut key repeat issue
 * Fixed shortcut being triggered multiple times when holding a key
@@ -78,7 +102,7 @@ No clutter. No confusion. Just organize.
 * Improved image loading error handling
 * Improved application stability
 
-### ⚡ Improvements
+#### Improvements
 
 * Added shortcut debounce protection
 * Added shortcut conflict prevention
@@ -92,7 +116,7 @@ No clutter. No confusion. Just organize.
 * Improved RAM usage when handling many images
 * Improved configuration recovery system
 
-### 📂 File Handling
+#### File Handling
 
 * Added duplicate file handling options:
   * Replace existing file
@@ -103,6 +127,8 @@ No clutter. No confusion. Just organize.
   * photo.jpg
   * photo (1).jpg
   * photo (2).jpg
+
+</details>
 
 ---
 
@@ -151,7 +177,7 @@ Useful for:
 
 ## 🆚 Comparison
 
-| Feature                    | Nausort Media v1.1 | Traditional File Explorer |
+| Feature                    | Nausort Media v1.2 | Traditional File Explorer |
 | -------------------------- | ------------------ | ------------------------- |
 | 🎨 Modern UI               | ✅ Yes              | ❌ No                      |
 | ⚡ Fast Image Scanning      | ✅ Yes              | ⚠️ Limited                |
@@ -162,6 +188,8 @@ Useful for:
 | 💾 Settings Memory         | ✅ Yes              | ❌ No                      |
 | ⭐ Favorites System         | ✅ Yes              | ❌ No                      |
 | 🖱️ Easy Workflow           | ✅ Yes              | ⚠️ Basic                  |
+| 🔒 Race-Condition Safe      | ✅ Yes (v1.2)       | ❌ No                      |
+| ⚠️ Corrupt File Auto-Skip  | ✅ Yes (v1.2)       | ❌ No                      |
 
 ---
 
@@ -284,6 +312,10 @@ Designed for a faster workflow:
 
 ### 🚀 Get the Latest Version
 
+[![Download](https://img.shields.io/badge/Download-Nausort%20Media%20v1.2-blue?style=for-the-badge\&logo=windows)](https://github.com/NaufalKhalil/Nausort-Media/releases/tag/v1.2)
+
+### 🚀 Another LTS version
+
 [![Download](https://img.shields.io/badge/Download-Nausort%20Media%20v1.1-blue?style=for-the-badge\&logo=windows)](https://github.com/NaufalKhalil/Nausort-Media/releases/tag/v1.1)
 
 [![Download](https://img.shields.io/badge/Download-Nausort%20Media%20v1.0-blue?style=for-the-badge\&logo=windows)](https://github.com/NaufalKhalil/Nausort-Media/releases/tag/v1.0)
@@ -333,4 +365,3 @@ Your support helps this project grow 🚀
 This project is licensed under the **MIT License**.
 
 See the [LICENSE](./LICENSE) file for details.
-
