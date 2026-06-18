@@ -159,6 +159,10 @@ function showImage(data) {
     return;
   }
 
+  // Remove any video-preview injected directly into the container
+  const vp = document.getElementById('imgContainer').querySelector('.video-preview');
+  if (vp) vp.remove();
+
   placeholder.innerHTML = _defaultPlaceholderHTML;
   placeholder.classList.add('hidden');
   img.classList.remove('hidden');
@@ -181,15 +185,29 @@ function showImage(data) {
 }
 
 function showVideoPreview(data) {
+  const container   = document.getElementById('imgContainer');
   const img         = document.getElementById('mainImage');
   const placeholder = document.getElementById('imgPlaceholder');
   const zoomCtrl    = document.getElementById('zoomControls');
+
+  // Save default placeholder HTML before we hide/modify it
+  if (_defaultPlaceholderHTML === null) {
+    _defaultPlaceholderHTML = placeholder.innerHTML;
+  }
 
   img.classList.add('hidden');
   zoomCtrl.classList.add('hidden');
   img.removeAttribute('src');
 
-  placeholder.innerHTML = '';
+  // Hide placeholder so it doesn't overlap
+  placeholder.classList.add('hidden');
+
+  // Remove any existing video-preview element
+  const existing = container.querySelector('.video-preview');
+  if (existing) existing.remove();
+
+  // Append video-preview directly to imgContainer so
+  // position:absolute / inset:0 resolves correctly
   const wrap = document.createElement('div');
   wrap.className = 'video-preview';
 
@@ -197,14 +215,19 @@ function showVideoPreview(data) {
   icon.className   = 'video-preview-icon';
   icon.textContent = '🎬';
 
-  const text = document.createElement('div');
-  text.className   = 'video-preview-text';
-  text.textContent = 'Video Preview';
+  const nameEl = document.createElement('div');
+  nameEl.className   = 'video-preview-text';
+  nameEl.textContent = data.filename || 'Video';
+
+  const label = document.createElement('div');
+  label.className   = 'video-preview-text';
+  label.textContent = 'Video Preview';
+  label.style.opacity = '0.5';
 
   wrap.appendChild(icon);
-  wrap.appendChild(text);
-  placeholder.appendChild(wrap);
-  placeholder.classList.remove('hidden');
+  wrap.appendChild(nameEl);
+  wrap.appendChild(label);
+  container.appendChild(wrap);
 
   document.getElementById('filenameLabel').textContent = data.filename || '';
 }
@@ -220,6 +243,10 @@ function showCorruptError(data) {
   img.classList.add('hidden');
   zoomCtrl.classList.add('hidden');
   img.removeAttribute('src');
+
+  // Remove any video-preview injected directly into the container
+  const vp = document.getElementById('imgContainer').querySelector('.video-preview');
+  if (vp) vp.remove();
 
   placeholder.innerHTML = '';
 
@@ -247,7 +274,13 @@ function showCorruptError(data) {
 }
 
 function showPlaceholder(resetStats = true) {
+  const container   = document.getElementById('imgContainer');
   const placeholder = document.getElementById('imgPlaceholder');
+
+  // Remove any video-preview injected directly into the container
+  const vp = container.querySelector('.video-preview');
+  if (vp) vp.remove();
+
   if (_defaultPlaceholderHTML !== null) placeholder.innerHTML = _defaultPlaceholderHTML;
   document.getElementById('mainImage').classList.add('hidden');
   placeholder.classList.remove('hidden');
