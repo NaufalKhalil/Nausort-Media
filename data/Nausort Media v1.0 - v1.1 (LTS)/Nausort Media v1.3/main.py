@@ -629,7 +629,6 @@ class NausortAPI:
                     "image_data": "",
                     "is_video":   True,
                     "index":      idx,
-                    "error":      None,
                     **base_counts,
                 }
 
@@ -655,7 +654,6 @@ class NausortAPI:
                 "filename":   os.path.basename(path),
                 "image_data": image_data,
                 "index":      idx,
-                "error":      None,
                 **base_counts,
             }
 

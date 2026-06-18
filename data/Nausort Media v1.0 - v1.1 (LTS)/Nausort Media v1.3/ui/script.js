@@ -80,7 +80,7 @@ function applyImportResult(res) {
   S.currentIndex = res.current_index ?? -1;
   updateStats();
   if (res.toast) showToast(res.toast, true);
-  if (res.image_data || res.is_video) showImage(res);
+  if (res.image_data || res.is_video === true) showImage(res);
   else showPlaceholder(false);
 }
 
@@ -216,7 +216,7 @@ function showVideoPreview(data) {
   icon.textContent = '🎬';
 
   const nameEl = document.createElement('div');
-  nameEl.className   = 'video-preview-text';
+  nameEl.className   = 'video-preview-filename';
   nameEl.textContent = data.filename || 'Video';
 
   const label = document.createElement('div');
@@ -398,7 +398,7 @@ async function doUndo() {
     if (res.photo_count !== undefined) S.photoCount = res.photo_count;
     if (res.video_count !== undefined) S.videoCount = res.video_count;
     S.total = res.total ?? S.total;
-    if (res.image_data || res.is_video) showImage(res);
+    if (res.image_data || res.is_video === true) showImage(res);
     else showPlaceholder(false);
   }
 }
@@ -408,7 +408,7 @@ async function doRedo() {
     if (res.photo_count !== undefined) S.photoCount = res.photo_count;
     if (res.video_count !== undefined) S.videoCount = res.video_count;
     S.total = res.total ?? S.total;
-    if (res.image_data || res.is_video) showImage(res);
+    if (res.image_data || res.is_video === true) showImage(res);
     else showPlaceholder(false);
   }
 }
@@ -446,7 +446,7 @@ async function sortTo(index, conflictAction) {
       showSummaryModal(res.summary);
     }
 
-    if (res.image_data || res.is_video) showImage(res);
+    if (res.image_data || res.is_video === true) showImage(res);
     else if (res.error)  showImage(res);
     else                 showPlaceholder(false);
   } finally {
