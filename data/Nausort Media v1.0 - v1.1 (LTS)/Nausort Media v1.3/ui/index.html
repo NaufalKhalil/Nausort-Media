@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nausort Media</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ════════════════════════ -->
+<header id="header">
+  <div class="header-left">
+    <img src="assets/Nausort.png" id="header-icon" alt="icon"/>
+    <span class="header-title">Nausort <span class="accent">Media</span></span>
+    <span class="header-version">v1.2</span>
+  </div>
+  <div class="header-right">
+    <div class="stats-badge">
+      <span class="stats-icon">📁</span>
+      <span id="statsCount">0</span> photos
+      <span class="stats-sep">·</span>
+      <span id="statsIndex">-</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════ MAIN LAYOUT ═══════════════════ -->
+<div class="layout">
+
+  <!-- ── LEFT PANEL: Image Viewer ───────────────────── -->
+  <section class="panel-left" id="panelLeft">
+
+    <!-- Filename bar -->
+    <div class="filename-bar">
+      <span id="filenameLabel" class="filename-text">No photos loaded</span>
+    </div>
+
+    <!-- Image canvas -->
+    <div class="img-container" id="imgContainer">
+      <div class="img-placeholder" id="imgPlaceholder">
+        <div class="placeholder-icon">📁</div>
+        <div class="placeholder-text">Import a folder to get started</div>
+        <button class="import-btn-big" onclick="importFolder()">Import Folder</button>
+      </div>
+      <img id="mainImage" class="main-image hidden" src="" alt="Selected photograph"
+           draggable="false"/>
+      <div class="zoom-controls hidden" id="zoomControls">
+        <button onclick="zoomIn()"    title="Zoom in (+)">+</button>
+        <button onclick="zoomReset()" title="Reset position (Backspace)">⊙</button>
+        <button onclick="zoomOut()"   title="Zoom out (-)">−</button>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar-wrap" id="progressWrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Vertical resize handle: image area ↕ category area -->
+    <div class="resize-handle-v" id="resizeHandleV"></div>
+
+    <!-- Category buttons area -->
+    <div class="cat-area" id="catArea">
+      <div class="cat-area-header">
+        <span class="section-label">Categories</span>
+        <button class="add-cat-btn" onclick="addCategory()" title="Add category">+ Add</button>
+      </div>
+      <div class="cat-wrap" id="catWrap">
+        <!-- buttons injected by JS -->
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── RESIZE HANDLE ─────────────────────────────── -->
+  <div class="resize-handle" id="resizeHandle"></div>
+
+  <!-- ── RIGHT PANEL: Terminal + Controls ─────────── -->
+  <section class="panel-right" id="panelRight">
+    <div class="panel-right-inner">
+
+      <!-- Terminal -->
+      <div class="term-header">
+        <span class="term-title"><span class="term-dot"></span>Terminal</span>
+        <button class="clear-btn" onclick="clearTerminal()">clear</button>
+      </div>
+      <div class="terminal" id="terminal">
+        <div id="termLines"></div>
+        <div class="term-cursor"></div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-section">
+        <div class="section-divider">
+          <span class="section-label">Actions</span>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" id="btnUndo" onclick="doUndo()">
+            <span class="nav-icon">↩</span> Undo
+            <span class="nav-key">Ctrl+Z</span>
+          </button>
+          <button class="nav-btn" id="btnRedo" onclick="doRedo()">
+            <span class="nav-icon">↪</span> Redo
+            <span class="nav-key">Ctrl+Y</span>
+          </button>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn accent-btn" onclick="importFolder()">
+            <span class="nav-icon">📂</span> Import Folder
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════ CONTEXT MENU ══════════════════ -->
+<div class="ctx-menu hidden" id="ctxMenu">
+  <div class="ctx-folder-info hidden" id="ctxFolderInfo">
+    <button id="ctxOpenFolder" onclick="ctxOpenFolder()"></button>
+    <div class="ctx-divider"></div>
+  </div>
+  <button onclick="ctxSetFolder()">📁 Set Destination Folder</button>
+  <div class="ctx-divider"></div>
+  <button onclick="ctxRename()">✏️ Rename</button>
+  <button onclick="ctxChangeColor()">🎨 Change Color</button>
+  <button onclick="ctxChangeShortcut()">⌨️ Change Shortcut</button>
+  <div class="ctx-divider"></div>
+  <button class="ctx-danger" onclick="ctxDelete()">🗑 Delete Category</button>
+</div>
+
+<!-- ═══════════════════ MODAL ═════════════════════════ -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-title" id="modalTitle">Dialog</div>
+    <div class="modal-body"  id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ COLOR PICKER ═════════════════ -->
+<div class="modal-overlay hidden" id="colorOverlay" onclick="closeColorPicker(event)">
+  <div class="modal color-modal" id="colorModal">
+    <div class="modal-title">Pick Button Color</div>
+    <div class="color-palette" id="colorPalette"></div>
+    <div class="color-custom-row">
+      <div class="color-preview" id="colorPreview"></div>
+      <div class="color-hex-wrap">
+        <span class="color-hex-label">HEX</span>
+        <input type="text" id="colorHexInput" class="color-hex-input"
+               maxlength="7" placeholder="#2a2a2a"
+               oninput="onHexInput(this.value)"/>
+      </div>
+    </div>
+    <div class="color-sliders">
+      <div class="slider-row">
+        <span class="slider-label r">R</span>
+        <input type="range" id="sliderR" min="0" max="255" value="42" oninput="onSlider()"/>
+        <span class="slider-val" id="valR">42</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label g">G</span>
+        <input type="range" id="sliderG" min="0" max="255" value="42" oninput="onSlider()"/>
+        <span class="slider-val" id="valG">42</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label b">B</span>
+        <input type="range" id="sliderB" min="0" max="255" value="42" oninput="onSlider()"/>
+        <span class="slider-val" id="valB">42</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn" id="colorCancelBtn">Cancel</button>
+      <button class="modal-btn primary" id="colorApplyBtn">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TOAST ═════════════════════════ -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
