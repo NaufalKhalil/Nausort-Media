@@ -97,15 +97,9 @@ function _hideDropHint() {
   document.getElementById('dropHint').classList.add('hidden');
 }
 
-// Truncate a folder name for display: "kenangan sekolah ..." if > maxLen chars
-function _truncateFolderName(name, maxLen = 18) {
-  return name.length > maxLen ? name.slice(0, maxLen).trimEnd() + ' ...' : name;
-}
-
 function initDragDrop() {
   const viewer  = document.getElementById('imgContainer');
   const catWrap = document.getElementById('catWrap');
-  const catArea = document.getElementById('catArea');
 
   // -- Drop onto the viewer: import a folder or a batch of image files --
   viewer.addEventListener('dragenter', e => {
@@ -164,48 +158,7 @@ function initDragDrop() {
     if (btn) { e.preventDefault(); btn.classList.remove('drag-over-cat'); }
     _clearDropZone();
   });
-
-  // -- Drag onto empty catArea / "Add+" button: auto-create new category --
-  catArea.addEventListener('dragenter', e => {
-    // Only activate when NOT hovering an existing category button
-    if (e.target.closest('.cat-btn')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    viewer.classList.remove('drag-over-import');
-    catArea.classList.add('drag-over-new-cat');
-    _setDropZone({ type: 'new_category' }, 'Drop folder untuk buat kategori baru', e.clientX, e.clientY);
-  });
-  catArea.addEventListener('dragover', e => {
-    if (e.target.closest('.cat-btn')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    _showDropHint('Drop folder untuk buat kategori baru', e.clientX, e.clientY);
-  });
-  catArea.addEventListener('dragleave', e => {
-    if (!catArea.contains(e.relatedTarget)) {
-      catArea.classList.remove('drag-over-new-cat');
-      if ((window._dropZone || {}).type === 'new_category') _clearDropZone();
-    }
-  });
-  catArea.addEventListener('drop', e => {
-    if (e.target.closest('.cat-btn')) return; // handled by catWrap listener
-    e.preventDefault();
-    catArea.classList.remove('drag-over-new-cat');
-    _clearDropZone();
-    // Python side will read _dropZone and call _handleNewCategoryResult
-  });
 }
-
-// Called from Python after a folder is dropped onto catArea empty space.
-window._handleNewCategoryResult = function(res) {
-  if (!res || !res.ok) {
-    showToast((res && res.error) || 'Gagal membuat kategori baru', false);
-    return;
-  }
-  S.categories = res.categories;
-  renderCategories();
-  showToast(res.toast || 'Kategori baru dibuat', true);
-};
 
 // Called from Python (main.py _setup_drag_drop) after a dropped folder or
 // batch of image files has been imported.

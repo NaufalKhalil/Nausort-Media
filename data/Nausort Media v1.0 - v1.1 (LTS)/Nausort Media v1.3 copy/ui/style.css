@@ -552,17 +552,6 @@ input[type="range"]::-webkit-slider-thumb {
   filter: brightness(1.35);
 }
 
-/* catArea: highlighted when dragging a folder to create a new category. */
-.cat-area.drag-over-new-cat {
-  outline: 2px dashed #50ffc8;
-  outline-offset: -3px;
-  background: rgba(80, 255, 200, 0.05);
-}
-.cat-area.drag-over-new-cat .add-cat-btn {
-  outline: 2px dashed #50ffc8;
-  color: #50ffc8;
-}
-
 /* Small floating tooltip that follows the cursor during a drag,
    telling the user what dropping here will do. */
 .drop-hint {

@@ -779,22 +779,6 @@ class NausortAPI:
         _log(f"[INFO] Category added: {name}", "info")
         return {"ok": True, "categories": cats}
 
-    def add_category_with_folder(self, folder_path):
-        """Create a new category whose name and destination are taken from a
-        dropped folder. The display name is the folder's basename, truncated
-        to 18 characters with ' ...' appended when it is longer."""
-        if not folder_path or not os.path.isdir(folder_path):
-            return {"ok": False, "error": "Item yang di-drop bukan folder."}
-        raw_name = os.path.basename(folder_path.rstrip("/\\"))
-        MAX_LEN = 18
-        display_name = (raw_name[:MAX_LEN].rstrip() + " ...") if len(raw_name) > MAX_LEN else raw_name
-        cats = _state.config.setdefault("categories", [])
-        cats.append({"name": display_name, "folder": folder_path, "color": "#2a2a2a", "shortcut": ""})
-        _state.save_config()
-        msg = f"Kategori '{display_name}' dibuat → {folder_path}"
-        _log(f"[INFO] {msg}", "info")
-        return {"ok": True, "categories": cats, "toast": msg}
-
     def delete_category(self, index):
         cats = _state.config.get("categories", [])
         if 0 <= index < len(cats):
@@ -932,13 +916,6 @@ def _setup_drag_drop(window, api):
                 return
             res = api.set_category_folder_dropped(zone.get("index", -1), folder)
             window.evaluate_js(f"window._handleCategoryFolderResult({json.dumps(res)})")
-        elif zone and zone.get("type") == "new_category":
-            folder = next((p for p in paths if os.path.isdir(p)), None)
-            if not folder:
-                _log("[WARN] Item yang di-drop ke area kategori bukan folder.", "warn")
-                return
-            res = api.add_category_with_folder(folder)
-            window.evaluate_js(f"window._handleNewCategoryResult({json.dumps(res)})")
         else:
             res = api.import_dropped(paths)
             window.evaluate_js(f"window._handleImportResult({json.dumps(res)})")
